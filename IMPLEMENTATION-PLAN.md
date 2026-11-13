@@ -83,3 +83,23 @@ Launch area, domain/branding, SMS gateway account, Cloudflare R2 + Gemini keys, 
 1. Scaffold `paBudget-backend` (NestJS + Prisma) and write the full schema + seed.
 2. Scaffold `paBudget-web` (Next.js) and `paBudget-mobile` (`flutter create`).
 3. Implement auth, then catalogue API.
+
+---
+
+## 8. Progress (phases 1–3)
+
+| Area | Status |
+| --- | --- |
+| Backend (`paBudget-backend`) | Done: schema + migrations, auth (email/phone OTP, refresh rotation), catalogue/search/filters, uploads + WebP pipeline, submissions engine (7 types), AI screening + menu extraction (Gemini, mockable), trust levels, admin API, audit log. 27 integration tests. |
+| Web (`paBudget-web`) | Done: SSR place pages + SEO, search/filters, auth, contribute flows, my contributions, favourites, admin panel (queue, batch approve, place editor, merge, users, areas/tags, audit log). Owner dashboard is phase 5. |
+| Mobile (`paBudget-mobile`) | Done: browse/filters/near me, place detail, auth + OTP, contribute flows, offline cache + offline draft queue. 13 tests. |
+
+**Deviations from the original plan (environment-driven)**
+- No PostGIS: places store `lat`/`lng`; distance uses haversine in code; duplicate check uses `pg_trgm` + a bounding box.
+- No Redis/BullMQ: image resizing runs inline after `POST /uploads/:id/complete`.
+- Express + Prisma 6 instead of NestJS.
+- API clients are hand-written (no OpenAPI generation yet); design tokens are duplicated in `globals.css` and `lib/theme.dart`.
+- Offline cache uses `shared_preferences` JSON, not Isar/Hive.
+- Place-pin picking uses GPS or typed coordinates plus a map link; an embedded map is a later improvement.
+
+**Still needs real-world input:** Figma designs, the 15–20 real seed places (`npm run seed:demo` only creates fictional ones), Gemini/R2/SMS keys, launch area, and lawyer review of the draft terms/privacy pages.
