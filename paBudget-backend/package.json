@@ -9,6 +9,7 @@
     "build": "tsc --noEmit",
     "test": "vitest run",
     "seed": "tsx prisma/seed.ts",
+    "seed:demo": "tsx prisma/demo.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
