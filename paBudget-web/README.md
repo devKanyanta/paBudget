@@ -1,2 +1,3 @@
 # paBudget-web
-See ../IMPLEMENTATION-PLAN.md
+
+Next.js app: public site, `/owner` and `/admin`. See ../IMPLEMENTATION-PLAN.md

@@ -110,6 +110,21 @@ adminRouter.get('/places', wrap(async (req, res) => {
   res.json(rows.map((p) => ({ id: p.id, name: p.name, slug: p.slug, status: p.status, area: p.area.name, category: p.category.name, source: p.source, menuItems: p._count.items, images: p._count.images, isFeatured: p.isFeatured })));
 }));
 
+adminRouter.get('/places/:id', wrap(async (req, res) => {
+  const p = await prisma.place.findUnique({
+    where: { id: req.params.id as string },
+    include: { hours: true, tags: { include: { tag: true } }, images: { orderBy: { sortOrder: 'asc' } }, sections: { orderBy: { sortOrder: 'asc' }, include: { items: { orderBy: { priceNgwee: 'asc' } } } } },
+  });
+  if (!p) throw notFound();
+  res.json({
+    id: p.id, name: p.name, slug: p.slug, status: p.status, categoryId: p.categoryId, areaId: p.areaId, lat: p.lat, lng: p.lng,
+    description: p.description, address: p.address, phone: p.phone, whatsapp: p.whatsapp, isFeatured: p.isFeatured, priceLevel: p.priceLevel,
+    hours: p.hours.map((h) => ({ weekday: h.weekday, opensAt: h.opensAt, closesAt: h.closesAt })), tagSlugs: p.tags.map((t) => t.tag.slug),
+    images: p.images.map((i) => ({ id: i.id, status: i.status, ...(urls(i.variantKeys) ?? {}) })),
+    menu: p.sections.map((s) => ({ name: s.name, items: s.items.map((i) => ({ id: i.id, name: i.name, priceNgwee: i.priceNgwee, isAvailable: i.isAvailable })) })),
+  });
+}));
+
 adminRouter.post('/places', wrap(async (req, res) => {
   const b = parse(placeBody, req.body);
   const tags = b.tagSlugs?.length ? await prisma.tag.findMany({ where: { slug: { in: b.tagSlugs } } }) : [];

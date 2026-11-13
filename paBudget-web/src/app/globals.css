@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/* Design tokens — mirrored in the Flutter app theme (paBudget-mobile/lib/theme.dart) */
+:root {
+  --background: #fbf9f4;
+  --surface: #ffffff;
+  --foreground: #1c1b18;
+  --muted: #6b675f;
+  --border: #e6e1d6;
+  --brand: #1f7a4d;
+  --brand-dark: #165c3a;
+  --brand-soft: #e3f3ea;
+  --accent: #e8a317;
+  --danger: #c0392b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121311;
+    --surface: #1b1d1a;
+    --foreground: #f1efe8;
+    --muted: #a09c92;
+    --border: #2d2f2a;
+    --brand: #43b27b;
+    --brand-dark: #2f8f5e;
+    --brand-soft: #1b3326;
+    --accent: #f0b73c;
+    --danger: #e5675a;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark; }
+  .btn-outline { @apply btn border border-border bg-surface hover:bg-brand-soft; }
+  .btn-danger { @apply btn bg-danger text-white; }
+  .input { @apply w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20; }
+  .label { @apply mb-1 block text-sm font-medium; }
+  .card { @apply rounded-2xl border border-border bg-surface; }
+  .chip { @apply inline-flex items-center rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium; }
+  .chip-active { @apply border-brand bg-brand-soft text-brand; }
+}
