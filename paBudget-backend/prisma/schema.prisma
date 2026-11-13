@@ -1,0 +1,465 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  OWNER
+  ADMIN
+}
+
+enum PlaceStatus {
+  DRAFT
+  PENDING
+  LIVE
+  HIDDEN
+}
+
+enum PlaceSource {
+  SEED
+  COMMUNITY
+  OWNER
+}
+
+enum TagType {
+  VIBE
+  FEATURE
+}
+
+enum ImageStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ImageOwnerType {
+  PLACE
+  MENU_ITEM
+  REVIEW
+  SUBMISSION
+}
+
+enum ContentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SubmissionType {
+  NEW_PLACE
+  MENU
+  PHOTOS
+  REVIEW
+  EDIT
+  FLAG
+  CLAIM
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  AUTO_PUBLISHED
+}
+
+enum TrustLevel {
+  NEW
+  TRUSTED
+  BANNED
+}
+
+model User {
+  id                  String    @id @default(uuid())
+  name                String
+  phone               String?   @unique
+  email               String?   @unique
+  passwordHash        String?
+  role                Role      @default(USER)
+  phoneVerifiedAt     DateTime?
+  homeAreaId          String?
+  defaultBudgetNgwee  Int?
+  createdAt           DateTime  @default(now())
+  deletedAt           DateTime?
+
+  homeArea         Area?             @relation(fields: [homeAreaId], references: [id])
+  refreshTokens    RefreshToken[]
+  favourites       Favourite[]
+  reviews          Review[]
+  submissions      Submission[]
+  stats            ContributorStats?
+  badges           UserBadge[]
+  ownerships       PlaceOwner[]
+  plans            Plan[]
+  aiRequests       AiRequest[]
+  images           Image[]
+  moderationLogs   ModerationLog[]
+}
+
+model OtpCode {
+  id         String   @id @default(uuid())
+  phone      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([phone, createdAt])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Area {
+  id    String  @id @default(uuid())
+  name  String
+  city  String  @default("Lusaka")
+  slug  String  @unique
+  lat   Float
+  lng   Float
+
+  places Place[]
+  users  User[]
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String
+  slug String @unique
+
+  places Place[]
+}
+
+model Tag {
+  id   String  @id @default(uuid())
+  name String
+  slug String  @unique
+  type TagType
+
+  places PlaceTag[]
+}
+
+model Place {
+  id                 String      @id @default(uuid())
+  name               String
+  slug               String      @unique
+  categoryId         String
+  areaId             String
+  description        String?
+  address            String?
+  lat                Float
+  lng                Float
+  phone              String?
+  whatsapp           String?
+  priceLevel         Int         @default(1)
+  avgSpendPpNgwee    Int?
+  status             PlaceStatus @default(PENDING)
+  isFeatured         Boolean     @default(false)
+  menuUpdatedAt      DateTime?
+  coverImageId       String?
+  closedPermanently  Boolean     @default(false)
+  source             PlaceSource @default(COMMUNITY)
+  createdById        String?
+  mergedIntoId       String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  category     Category      @relation(fields: [categoryId], references: [id])
+  area         Area          @relation(fields: [areaId], references: [id])
+  hours        PlaceHour[]
+  tags         PlaceTag[]
+  owners       PlaceOwner[]
+  sections     MenuSection[]
+  items        MenuItem[]
+  images       Image[]       @relation("PlaceImages")
+  reviews      Review[]
+  favourites   Favourite[]
+  events       PlaceEvent[]
+  planStops    PlanStop[]
+  deals        Deal[]
+  slots        FeaturedSlot[]
+
+  @@index([areaId, status])
+  @@index([lat, lng])
+  @@index([categoryId])
+}
+
+model PlaceHour {
+  id       String @id @default(uuid())
+  placeId  String
+  weekday  Int // 0 = Sunday
+  opensAt  String // "HH:MM"
+  closesAt String // "HH:MM", may be earlier than opensAt for after-midnight
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@index([placeId, weekday])
+}
+
+model PlaceTag {
+  placeId String
+  tagId   String
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([placeId, tagId])
+}
+
+model PlaceOwner {
+  placeId    String
+  userId     String
+  verifiedAt DateTime?
+  verifiedBy String?
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([placeId, userId])
+}
+
+model MenuSection {
+  id        String @id @default(uuid())
+  placeId   String
+  name      String
+  sortOrder Int    @default(0)
+
+  place Place      @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  items MenuItem[]
+
+  @@index([placeId])
+}
+
+model MenuItem {
+  id              String   @id @default(uuid())
+  sectionId       String
+  placeId         String
+  name            String
+  description     String?
+  priceNgwee      Int
+  isAvailable     Boolean  @default(true)
+  imageId         String?
+  lastConfirmedAt DateTime @default(now())
+  confirmCount    Int      @default(0)
+  updatedAt       DateTime @updatedAt
+
+  section MenuSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  place   Place       @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@index([placeId, priceNgwee])
+}
+
+model Image {
+  id           String         @id @default(uuid())
+  ownerType    ImageOwnerType
+  ownerId      String?
+  placeId      String?
+  r2Key        String
+  width        Int?
+  height       Int?
+  variantKeys  Json?
+  status       ImageStatus    @default(PENDING)
+  uploadedById String?
+  submissionId String?
+  sortOrder    Int            @default(0)
+  processedAt  DateTime?
+  createdAt    DateTime       @default(now())
+
+  place      Place?      @relation("PlaceImages", fields: [placeId], references: [id], onDelete: SetNull)
+  uploadedBy User?       @relation(fields: [uploadedById], references: [id])
+  submission Submission? @relation(fields: [submissionId], references: [id])
+
+  @@index([placeId, status])
+  @@index([submissionId])
+}
+
+model Review {
+  id             String        @id @default(uuid())
+  placeId        String
+  userId         String
+  rating         Int
+  body           String?
+  amountPaidNgwee Int?
+  groupSize      Int?
+  itemsOrdered   String?
+  vibeTags       String[]
+  imageIds       String[]
+  status         ContentStatus @default(PENDING)
+  ownerReply     String?
+  createdAt      DateTime      @default(now())
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, userId])
+  @@index([placeId, status, createdAt])
+}
+
+model Favourite {
+  userId    String
+  placeId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, placeId])
+}
+
+model Plan {
+  id            String   @id @default(uuid())
+  userId        String
+  title         String
+  budgetNgwee   Int
+  groupSize     Int
+  shareToken    String   @unique @default(uuid())
+  createdAt     DateTime @default(now())
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stops PlanStop[]
+}
+
+model PlanStop {
+  id                  String @id @default(uuid())
+  planId              String
+  placeId             String
+  sortOrder           Int    @default(0)
+  estimatedTotalNgwee Int
+  items               Json
+
+  plan  Plan  @relation(fields: [planId], references: [id], onDelete: Cascade)
+  place Place @relation(fields: [placeId], references: [id])
+}
+
+model AiRequest {
+  id                String   @id @default(uuid())
+  userId            String?
+  kind              String // planner | screening | menu_extract
+  prompt            String?
+  parsedFilters     Json?
+  candidatePlaceIds String[]
+  response          Json?
+  tokensIn          Int      @default(0)
+  tokensOut         Int      @default(0)
+  latencyMs         Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+model Deal {
+  id         String   @id @default(uuid())
+  placeId    String
+  title      String
+  priceNgwee Int
+  startsAt   DateTime
+  endsAt     DateTime
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+}
+
+model FeaturedSlot {
+  id                String   @id @default(uuid())
+  placeId           String
+  areaId            String
+  startsAt          DateTime
+  endsAt            DateTime
+  amountPaidNgwee   Int
+  paymentRef        String?
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+}
+
+model PlaceEvent {
+  id        String   @id @default(uuid())
+  placeId   String
+  userId    String?
+  type      String // view | menu_view | call | directions | ai_shown | whatsapp
+  createdAt DateTime @default(now())
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@index([placeId, createdAt])
+}
+
+model Submission {
+  id           String           @id @default(uuid())
+  userId       String
+  type         SubmissionType
+  targetPlaceId String?
+  payload      Json
+  status       SubmissionStatus @default(PENDING)
+  aiScore      Int?
+  aiReasons    Json?
+  reviewedById String?
+  reviewedAt   DateTime?
+  rejectReason String?
+  spotCheck    Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images Image[]
+  logs   ModerationLog[]
+
+  @@index([status, aiScore])
+  @@index([userId, createdAt])
+}
+
+model ContributorStats {
+  userId         String     @id
+  trustLevel     TrustLevel @default(NEW)
+  points         Int        @default(0)
+  approvedCount  Int        @default(0)
+  rejectedCount  Int        @default(0)
+  lastPromotedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id   String @id @default(uuid())
+  name String @unique
+  rule String
+
+  users UserBadge[]
+}
+
+model UserBadge {
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+}
+
+model ModerationLog {
+  id           String   @id @default(uuid())
+  adminId      String
+  submissionId String?
+  action       String
+  note         String?
+  createdAt    DateTime @default(now())
+
+  admin      User        @relation(fields: [adminId], references: [id])
+  submission Submission? @relation(fields: [submissionId], references: [id])
+}
