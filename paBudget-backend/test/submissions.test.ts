@@ -34,9 +34,7 @@ describe('uploads', () => {
 });
 
 describe('submission gating', () => {
-  it('requires a verified phone and rejects invalid payloads', async () => {
-    const u = await makeUser({ verified: false });
-    await api().post('/submissions/review').set(u.auth).send({ placeId: place.id, rating: 5 }).expect(403);
+  it('requires login and rejects invalid payloads', async () => {
     const v = await makeUser();
     await api().post('/submissions/review').set(v.auth).send({ placeId: place.id, rating: 9 }).expect(400);
     await api().post('/submissions/review').set(v.auth).send({ rating: 5 }).expect(400);

@@ -51,7 +51,6 @@ type Tx = Prisma.TransactionClient;
 
 export async function createSubmission(userId: string, type: SubmissionType, rawPayload: unknown, targetPlaceId?: string) {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { stats: true } });
-  if (!user.phoneVerifiedAt) throw forbidden('Verify your phone number to contribute');
   const stats = user.stats ?? (await prisma.contributorStats.create({ data: { userId } }));
   if (stats.trustLevel === 'BANNED') throw forbidden('Your account cannot contribute');
 

@@ -116,14 +116,6 @@ class AuthNotifier extends AsyncNotifier<AppUser?> {
         body: {'name': name, if (email != null && email.isNotEmpty) 'email': email, if (phone != null && phone.isNotEmpty) 'phone': phone, 'password': password}, auth: false)));
   }
 
-  Future<void> requestOtp(String phone) => ref.read(apiProvider).post('/auth/otp/request', body: {'phone': phone}, auth: false);
-
-  Future<void> verifyOtp(String phone, String code, {String? name}) async {
-    final loggedIn = state.value != null;
-    await _setSession(Map<String, dynamic>.from(await ref.read(apiProvider).post('/auth/otp/verify',
-        body: {'phone': phone, 'code': code, if (name != null && name.isNotEmpty && !loggedIn) 'name': name}, auth: loggedIn)));
-  }
-
   Future<void> logout() async {
     final t = await ref.read(tokenStoreProvider).read();
     if (t != null) {

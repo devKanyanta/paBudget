@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { api, resetDb, makeUser, sentCodes, prisma } from './helpers.js';
+import { api, resetDb, makeUser, prisma } from './helpers.js';
 
 beforeAll(resetDb);
 
@@ -26,26 +26,17 @@ describe('auth', () => {
     await api().get('/me').set('Authorization', 'Bearer nope').expect(401);
   });
 
-  it('phone OTP signs up, verifies and attaches to an existing account', async () => {
-    await api().post('/auth/otp/request').send({ phone: '0971234567' }).expect(204);
-    await api().post('/auth/otp/verify').send({ phone: '0971234567', code: '000000' }).expect(401);
-    const code = sentCodes.get('+260971234567')!;
-    const v = await api().post('/auth/otp/verify').send({ phone: '0971234567', code, name: 'Mwila' }).expect(200);
-    expect(v.body.user.phoneVerified).toBe(true);
-    expect(v.body.user.phone).toBe('+260971234567');
-    // code is single-use
-    await api().post('/auth/otp/verify').send({ phone: '0971234567', code }).expect(401);
-
-    const u = await makeUser({ verified: false });
-    await api().post('/auth/otp/request').send({ phone: '0961111111' }).expect(204);
-    await api().post('/auth/otp/verify').set(u.auth).send({ phone: '0961111111', code: sentCodes.get('+260961111111')! }).expect(200);
-    const me = await api().get('/me').set(u.auth);
-    expect(me.body.phoneVerified).toBe(true);
+  it('registers and logs in with a phone number and password', async () => {
+    const reg = await api().post('/auth/register').send({ name: 'Mwila', phone: '0971234567', password: 'secret1234' }).expect(201);
+    expect(reg.body.user.phone).toBe('+260971234567');
+    await api().post('/auth/login').send({ phone: '0971234567', password: 'secret1234' }).expect(200);
+    await api().post('/auth/register').send({ name: 'Dup', phone: '+260971234567', password: 'secret1234' }).expect(409);
+    await api().post('/auth/register').send({ name: 'Bad', phone: '12', password: 'secret1234' }).expect(400);
+    await api().post('/auth/register').send({ name: 'None', password: 'secret1234' }).expect(400);
   });
 
-  it('limits OTP requests per phone', async () => {
-    for (let i = 0; i < 5; i++) await api().post('/auth/otp/request').send({ phone: '0955555555' }).expect(204);
-    await api().post('/auth/otp/request').send({ phone: '0955555555' }).expect(429);
+  it('has no SMS/OTP endpoints', async () => {
+    await api().post('/auth/otp/request').send({ phone: '0971234567' }).expect(404);
   });
 
   it('deletes account and personal data', async () => {

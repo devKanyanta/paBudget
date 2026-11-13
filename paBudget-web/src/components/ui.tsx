@@ -17,21 +17,12 @@ export function ErrorText({ error }: { error: unknown }) {
 }
 
 /** Redirects to /login when signed out. role='ADMIN' also blocks non-admins. */
-export function RequireAuth({ children, role, phone }: { children: ReactNode; role?: 'ADMIN'; phone?: boolean }) {
+export function RequireAuth({ children, role }: { children: ReactNode; role?: 'ADMIN' }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   useEffect(() => { if (!loading && !user) router.replace(`/login?next=${encodeURIComponent(window.location.pathname)}`); }, [loading, user, router]);
   if (loading || !user) return <p className="py-10 text-center text-sm text-muted">Loading…</p>;
   if (role && user.role !== role) return <p className="py-10 text-center">You don’t have access to this page.</p>;
-  if (phone && !user.phoneVerified) {
-    return (
-      <div className="card mx-auto max-w-md space-y-3 p-5 text-center">
-        <h2 className="text-lg font-bold">Verify your phone to contribute</h2>
-        <p className="text-sm text-muted">We ask contributors to confirm a phone number to keep fake reviews out.</p>
-        <Link className="btn-primary" href={`/verify-phone?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '/')}`}>Verify my number</Link>
-      </div>
-    );
-  }
   return <>{children}</>;
 }
 

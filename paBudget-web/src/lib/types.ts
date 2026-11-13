@@ -26,7 +26,7 @@ export type Review = {
   images: { thumb: string; medium: string; full: string }[];
 };
 
-export type User = { id: string; name: string; email: string | null; phone: string | null; role: 'USER' | 'OWNER' | 'ADMIN'; phoneVerified: boolean; homeAreaId: string | null; defaultBudgetNgwee: number | null };
+export type User = { id: string; name: string; email: string | null; phone: string | null; role: 'USER' | 'OWNER' | 'ADMIN'; homeAreaId: string | null; defaultBudgetNgwee: number | null };
 export type AuthResult = { accessToken: string; refreshToken: string; expiresIn: number; user: User };
 
 export type MySubmission = { id: string; type: string; status: string; placeId: string | null; rejectReason: string | null; createdAt: string; summary: string | null };

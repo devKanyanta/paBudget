@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { prisma } from '../db.js';
-import { optionalAuth, requireAuth } from '../middleware/auth.js';
+import { requireAuth } from '../middleware/auth.js';
 import { parse, wrap } from '../middleware/misc.js';
 import * as auth from '../services/auth.js';
 
@@ -19,15 +19,6 @@ authRouter.post('/register', wrap(async (req, res) => {
 authRouter.post('/login', wrap(async (req, res) => {
   const b = parse(z.object({ email: z.string().email().optional(), phone: z.string().optional(), password: z.string() }), req.body);
   res.json(await auth.login(b));
-}));
-authRouter.post('/otp/request', wrap(async (req, res) => {
-  const b = parse(z.object({ phone: z.string() }), req.body);
-  await auth.requestOtp(b.phone);
-  res.status(204).end();
-}));
-authRouter.post('/otp/verify', optionalAuth, wrap(async (req, res) => {
-  const b = parse(z.object({ phone: z.string(), code: z.string().length(6), name: z.string().max(80).optional() }), req.body);
-  res.json(await auth.verifyOtp(b, req.user?.id));
 }));
 authRouter.post('/refresh', wrap(async (req, res) => {
   const b = parse(z.object({ refreshToken: z.string() }), req.body);

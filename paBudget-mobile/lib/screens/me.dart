@@ -62,8 +62,6 @@ class ProfileScreen extends ConsumerWidget {
                   _Stat('${subs.stats!['approved']}', 'approved'), const SizedBox(width: 8),
                   _Stat(subs.stats!['trustLevel'] == 'TRUSTED' ? 'Trusted' : 'New', 'contributor'),
                 ])),
-              if (!user.phoneVerified)
-                Padding(padding: const EdgeInsets.only(top: 12), child: Card(color: Tokens.brandSoft, child: ListTile(leading: const Icon(Icons.phone_android), title: const Text('Verify your phone to contribute'), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/verify')))),
               const SizedBox(height: 8),
               ListTile(leading: const Icon(Icons.list_alt), title: const Text('My contributions'), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/me/contributions')),
               ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('Settings'), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/me/settings')),

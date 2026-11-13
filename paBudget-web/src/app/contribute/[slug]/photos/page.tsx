@@ -20,4 +20,4 @@ function Form() {
     </form>
   );
 }
-export default function Page() { return <RequireAuth phone><Form /></RequireAuth>; }
+export default function Page() { return <RequireAuth><Form /></RequireAuth>; }

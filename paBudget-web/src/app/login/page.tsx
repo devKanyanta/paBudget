@@ -29,7 +29,6 @@ function LoginForm() {
       <Field label="Email or phone"><input className="input" value={id} onChange={(e) => setId(e.target.value)} autoComplete="username" required /></Field>
       <Field label="Password"><input className="input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="current-password" required /></Field>
       <button className="btn-primary w-full" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button>
-      <Link className="btn-outline w-full" href={`/verify-phone?mode=signin&next=${encodeURIComponent(next)}`}>Use a phone code instead</Link>
       <p className="text-center text-sm text-muted">New here? <Link className="font-medium text-brand" href={`/register?next=${encodeURIComponent(next)}`}>Create an account</Link></p>
     </form>
   );

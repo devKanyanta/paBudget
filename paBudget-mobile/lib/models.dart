@@ -137,12 +137,11 @@ class Review {
 }
 
 class AppUser {
-  AppUser({required this.id, required this.name, required this.role, required this.phoneVerified, this.email, this.phone});
+  AppUser({required this.id, required this.name, required this.role, this.email, this.phone});
   final String id, name, role;
-  final bool phoneVerified;
   final String? email, phone;
   factory AppUser.fromJson(Map<String, dynamic> j) => AppUser(
-        id: j['id'], name: j['name'], role: j['role'], phoneVerified: j['phoneVerified'] ?? false, email: j['email'], phone: j['phone']);
+        id: j['id'], name: j['name'], role: j['role'], email: j['email'], phone: j['phone']);
 }
 
 class MySubmission {

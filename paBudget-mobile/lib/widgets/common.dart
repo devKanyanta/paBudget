@@ -106,11 +106,10 @@ class PlaceCard extends StatelessWidget {
   }
 }
 
-/// Runs [action] only for signed-in, phone-verified users, else sends them to log in / verify.
+/// Runs [action] only for signed-in users, else sends them to log in.
 Future<void> requireContributor(BuildContext context, WidgetRef ref, VoidCallback action) async {
   final user = ref.read(authProvider).value;
   if (user == null) { context.push('/login'); return; }
-  if (!user.phoneVerified) { context.push('/verify'); return; }
   action();
 }
 

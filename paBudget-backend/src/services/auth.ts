@@ -3,8 +3,7 @@ import crypto from 'node:crypto';
 import { prisma } from '../db.js';
 import { config } from '../config.js';
 import { signAccess } from '../middleware/auth.js';
-import { badRequest, conflict, tooMany, unauthorized } from '../lib/errors.js';
-import { sendSms } from './sms.js';
+import { badRequest, conflict, unauthorized } from '../lib/errors.js';
 import type { User } from '@prisma/client';
 
 const sha = (s: string) => crypto.createHash('sha256').update(s).digest('hex');
@@ -19,7 +18,7 @@ export function normalizePhone(p: string) {
 
 export const publicUser = (u: User) => ({
   id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role,
-  phoneVerified: !!u.phoneVerifiedAt, homeAreaId: u.homeAreaId, defaultBudgetNgwee: u.defaultBudgetNgwee,
+  homeAreaId: u.homeAreaId, defaultBudgetNgwee: u.defaultBudgetNgwee,
 });
 
 export async function issueTokens(user: User) {
@@ -47,40 +46,6 @@ export async function login(i: { email?: string; phone?: string; password: strin
   if (!where) throw badRequest('Email or phone is required');
   const user = await prisma.user.findUnique({ where });
   if (!user || user.deletedAt || !user.passwordHash || !(await bcrypt.compare(i.password, user.passwordHash))) throw unauthorized('Wrong credentials');
-  return issueTokens(user);
-}
-
-export async function requestOtp(phoneRaw: string) {
-  const phone = normalizePhone(phoneRaw);
-  const recent = await prisma.otpCode.count({ where: { phone, createdAt: { gt: new Date(Date.now() - 3600_000) } } });
-  if (recent >= 5) throw tooMany('Too many codes requested. Try again later.');
-  const code = String(crypto.randomInt(100000, 1000000));
-  await prisma.otpCode.create({ data: { phone, codeHash: sha(phone + code), expiresAt: new Date(Date.now() + 5 * 60_000) } });
-  await sendSms(phone, `Your paBudget code is ${code}. It expires in 5 minutes.`);
-}
-
-/** Verifies the code. If userId given, attaches the phone to that account; otherwise signs in / signs up by phone. */
-export async function verifyOtp(i: { phone: string; code: string; name?: string }, userId?: string) {
-  const phone = normalizePhone(i.phone);
-  const otp = await prisma.otpCode.findFirst({ where: { phone, consumedAt: null, expiresAt: { gt: new Date() } }, orderBy: { createdAt: 'desc' } });
-  if (!otp || otp.attempts >= 5) throw unauthorized('Code expired or invalid');
-  if (otp.codeHash !== sha(phone + i.code)) {
-    await prisma.otpCode.update({ where: { id: otp.id }, data: { attempts: { increment: 1 } } });
-    throw unauthorized('Wrong code');
-  }
-  await prisma.otpCode.update({ where: { id: otp.id }, data: { consumedAt: new Date() } });
-  const now = new Date();
-  let user: User | null;
-  if (userId) {
-    const other = await prisma.user.findUnique({ where: { phone } });
-    if (other && other.id !== userId) throw conflict('Phone already used by another account');
-    user = await prisma.user.update({ where: { id: userId }, data: { phone, phoneVerifiedAt: now } });
-  } else {
-    user = await prisma.user.findUnique({ where: { phone } });
-    if (user?.deletedAt) throw unauthorized('Account deleted');
-    if (user) user = await prisma.user.update({ where: { id: user.id }, data: { phoneVerifiedAt: now } });
-    else user = await prisma.user.create({ data: { name: i.name || 'New user', phone, phoneVerifiedAt: now, stats: { create: {} } } });
-  }
   return issueTokens(user);
 }
 

@@ -7,7 +7,7 @@ export default function Privacy() {
       <h2 className="font-semibold">What we collect</h2>
       <p>Your name, email and/or phone number, the content you contribute, and your location only when you tap “near me” or “use my location” and allow it. Photos are stripped of location metadata when uploaded.</p>
       <h2 className="font-semibold">Why</h2>
-      <p>To run your account, verify contributors, show your contributions with your display name, prevent abuse, and improve the service.</p>
+      <p>To run your account, identify contributors, show your contributions with your display name, prevent abuse, and improve the service.</p>
       <h2 className="font-semibold">Your rights</h2>
       <p>You can change your details or delete your account and personal data any time in Settings. Places and reviews you contributed remain but are no longer linked to your identity.</p>
     </div>

@@ -2,7 +2,6 @@ import request from 'supertest';
 import sharp from 'sharp';
 import { prisma } from '../src/db.js';
 import { createApp } from '../src/app.js';
-import { sentCodes } from '../src/services/sms.js';
 import { seedReference } from '../prisma/seed.js';
 
 export const app = createApp();
@@ -15,14 +14,14 @@ export async function resetDb() {
 }
 
 let n = 0;
-export async function makeUser(opts: { role?: 'USER' | 'ADMIN'; verified?: boolean; trust?: 'NEW' | 'TRUSTED' | 'BANNED'; name?: string } = {}) {
+export async function makeUser(opts: { role?: 'USER' | 'ADMIN'; trust?: 'NEW' | 'TRUSTED' | 'BANNED'; name?: string } = {}) {
   n++;
   const email = `user${n}-${Date.now()}@test.local`;
   const r = await api().post('/auth/register').send({ name: opts.name ?? `User ${n}`, email, password: 'password123' });
   const id = r.body.user.id as string;
   await prisma.user.update({
     where: { id },
-    data: { role: opts.role ?? 'USER', phoneVerifiedAt: opts.verified === false ? null : new Date(), createdAt: new Date(Date.now() - 7 * 864e5) },
+    data: { role: opts.role ?? 'USER', createdAt: new Date(Date.now() - 7 * 864e5) },
   });
   if (opts.trust) await prisma.contributorStats.update({ where: { userId: id }, data: { trustLevel: opts.trust } });
   // re-login so the token carries the updated role
@@ -60,4 +59,4 @@ export async function makePlace(admin: { auth: Record<string, string> }, over: R
   return r.body as { id: string; slug: string };
 }
 
-export { prisma, sentCodes };
+export { prisma };

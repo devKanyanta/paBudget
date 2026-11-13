@@ -44,7 +44,6 @@ final routerProvider = Provider<GoRouter>((ref) => GoRouter(
         GoRoute(path: '/place/:slug', builder: (_, s) => PlaceDetailScreen(slug: s.pathParameters['slug']!)),
         GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
         GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
-        GoRoute(path: '/verify', builder: (_, s) => VerifyPhoneScreen(signIn: s.uri.queryParameters['signin'] == '1')),
         GoRoute(path: '/me/contributions', builder: (_, _) => const ContributionsScreen()),
         GoRoute(path: '/me/settings', builder: (_, _) => const SettingsScreen()),
         GoRoute(path: '/contribute/place', builder: (_, _) => const AddPlaceScreen()),

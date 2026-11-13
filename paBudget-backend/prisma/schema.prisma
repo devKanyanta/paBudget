@@ -80,7 +80,6 @@ model User {
   email               String?   @unique
   passwordHash        String?
   role                Role      @default(USER)
-  phoneVerifiedAt     DateTime?
   homeAreaId          String?
   defaultBudgetNgwee  Int?
   createdAt           DateTime  @default(now())
@@ -98,18 +97,6 @@ model User {
   aiRequests       AiRequest[]
   images           Image[]
   moderationLogs   ModerationLog[]
-}
-
-model OtpCode {
-  id         String   @id @default(uuid())
-  phone      String
-  codeHash   String
-  expiresAt  DateTime
-  attempts   Int      @default(0)
-  consumedAt DateTime?
-  createdAt  DateTime @default(now())
-
-  @@index([phone, createdAt])
 }
 
 model RefreshToken {

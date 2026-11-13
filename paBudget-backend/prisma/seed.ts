@@ -32,7 +32,7 @@ async function main() {
   const password = process.env.ADMIN_PASSWORD ?? 'ChangeMe123!';
   if (!(await prisma.user.findUnique({ where: { email } }))) {
     await prisma.user.create({
-      data: { name: 'Admin', email, passwordHash: await bcrypt.hash(password, 10), role: 'ADMIN', phoneVerifiedAt: new Date(), stats: { create: { trustLevel: 'TRUSTED' } } },
+      data: { name: 'Admin', email, passwordHash: await bcrypt.hash(password, 10), role: 'ADMIN', stats: { create: { trustLevel: 'TRUSTED' } } },
     });
     console.log(`Created admin ${email} (change the password!)`);
   }

@@ -29,7 +29,7 @@ Backend first (everything depends on it), then admin panel (needed to moderate/s
 - Non-code (user): Figma wireframes, terms, pick launch area, collect seed places.
 
 ### Phase 2 — Backend core, submissions, moderation (weeks 3–6)
-1. Auth: email+password (argon2), phone OTP (Africa's Talking adapter + dev console adapter), JWT 15 min + refresh rotation, roles guard, device/IP throttling. FR-01, FR-03, FR-05.
+1. Auth: email+password (argon2), email or phone + password (no SMS), JWT 15 min + refresh rotation, roles guard, device/IP throttling. FR-01, FR-03, FR-05.
 2. Catalogue API: places, hours, tags, menus, search (pg_trgm + dish search), filters (budget/pp, group total, area, category, tags, open-now), sorts, PostGIS near-me, favourites, reviews. FR-10–FR-24, FR-40–42.
 3. Uploads: presigned PUT, type/size checks (8 MB, JPEG/PNG/WebP), BullMQ worker with `sharp` → 400/800 WebP, EXIF strip. NFR-01, NFR-08.
 4. Submissions engine: single `submissions` table, per-type payload Zod schemas (new_place, menu, photos, review, edit, flag), apply-on-approve handlers writing real tables in a transaction, status machine, rate limits (20/day, 5 places/day). FR-70–78, NFR-15.
@@ -77,7 +77,7 @@ Mobile-money payments, featured listings, deals, rewards, multi-stop plans, iOS,
 - Offline drafts and image upload resumption on flaky networks → build the upload queue early in mobile.
 
 ## 6. Open items needing the user
-Launch area, domain/branding, SMS gateway account, Cloudflare R2 + Gemini keys, Figma designs, hosting choice.
+Launch area, domain/branding, Cloudflare R2 + Gemini keys, Figma designs, hosting choice.
 
 ## 7. Proposed immediate next steps
 1. Scaffold `paBudget-backend` (NestJS + Prisma) and write the full schema + seed.
@@ -90,9 +90,9 @@ Launch area, domain/branding, SMS gateway account, Cloudflare R2 + Gemini keys, 
 
 | Area | Status |
 | --- | --- |
-| Backend (`paBudget-backend`) | Done: schema + migrations, auth (email/phone OTP, refresh rotation), catalogue/search/filters, uploads + WebP pipeline, submissions engine (7 types), AI screening + menu extraction (Gemini, mockable), trust levels, admin API, audit log. 27 integration tests. |
+| Backend (`paBudget-backend`) | Done: schema + migrations, auth (email or phone + password, refresh rotation), catalogue/search/filters, uploads + WebP pipeline, submissions engine (7 types), AI screening + menu extraction (Gemini, mockable), trust levels, admin API, audit log. 27 integration tests. |
 | Web (`paBudget-web`) | Done: SSR place pages + SEO, search/filters, auth, contribute flows, my contributions, favourites, admin panel (queue, batch approve, place editor, merge, users, areas/tags, audit log). Owner dashboard is phase 5. |
-| Mobile (`paBudget-mobile`) | Done: browse/filters/near me, place detail, auth + OTP, contribute flows, offline cache + offline draft queue. 13 tests. |
+| Mobile (`paBudget-mobile`) | Done: browse/filters/near me, place detail, auth, contribute flows, offline cache + offline draft queue. 13 tests. |
 
 **Deviations from the original plan (environment-driven)**
 - No PostGIS: places store `lat`/`lng`; distance uses haversine in code; duplicate check uses `pg_trgm` + a bounding box.
@@ -102,4 +102,6 @@ Launch area, domain/branding, SMS gateway account, Cloudflare R2 + Gemini keys, 
 - Offline cache uses `shared_preferences` JSON, not Isar/Hive.
 - Place-pin picking uses GPS or typed coordinates plus a map link; an embedded map is a later improvement.
 
-**Still needs real-world input:** Figma designs, the 15–20 real seed places (`npm run seed:demo` only creates fictional ones), Gemini/R2/SMS keys, launch area, and lawyer review of the draft terms/privacy pages.
+**Still needs real-world input:** Figma designs, the 15–20 real seed places (`npm run seed:demo` only creates fictional ones), Gemini/R2 keys, launch area, and lawyer review of the draft terms/privacy pages.
+
+**SMS removed (by request):** there is no OTP/SMS phone verification. Accounts use email or phone + password; a phone number is an optional, unverified login identifier. Contributing requires only a signed-in account; abuse limits (20 submissions/day, 5 new places/day, auth rate limiting) and moderation still apply. This replaces the "verified phone" requirement in FR-01 and NFR-15 of the URD, so fake-account protection is weaker and worth revisiting (e.g. email verification, captcha) before launch.
