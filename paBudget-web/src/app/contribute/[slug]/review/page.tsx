@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { Star } from 'lucide-react';
 import { ErrorText, Field, RequireAuth } from '@/components/ui';
 import { ImageUploader, type Uploaded } from '@/components/image-uploader';
 import { useSubmit } from '@/components/submit';
@@ -23,8 +24,8 @@ function Form() {
     }}>
       <h1 className="text-xl font-bold">Review {place.name}</h1>
       <ErrorText error={error} />
-      <div role="radiogroup" aria-label="Rating" className="flex gap-1 text-3xl">
-        {[1, 2, 3, 4, 5].map((n) => <button type="button" key={n} role="radio" aria-checked={rating === n} aria-label={`${n} stars`} onClick={() => setRating(n)} className={n <= rating ? 'text-accent' : 'text-border'}>★</button>)}
+      <div role="radiogroup" aria-label="Rating" className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((n) => <button type="button" key={n} role="radio" aria-checked={rating === n} aria-label={`${n} stars`} onClick={() => setRating(n)} className={n <= rating ? 'text-accent' : 'text-border'}><Star aria-hidden className="size-8 fill-current" /></button>)}
       </div>
       <Field label="What did you order?"><input className="input" value={f.itemsOrdered} onChange={(e) => setF({ ...f, itemsOrdered: e.target.value })} placeholder="2 burgers, 2 Cokes" /></Field>
       <div className="grid grid-cols-2 gap-3">

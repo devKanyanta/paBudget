@@ -44,7 +44,8 @@ void main() {
     await pump(t);
     expect(find.text('Cheap Eats'), findsOneWidget);
     expect(find.text('Fancy Place'), findsOneWidget);
-    expect(find.text('~K40 pp'), findsOneWidget);
+    expect(find.text('K40'), findsOneWidget);
+    expect(find.text('per person'), findsWidgets);
     expect(find.text('2 places'), findsOneWidget);
   });
 

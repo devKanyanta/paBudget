@@ -68,6 +68,9 @@ export async function deleteAccount(userId: string) {
   await prisma.$transaction([
     prisma.refreshToken.deleteMany({ where: { userId } }),
     prisma.favourite.deleteMany({ where: { userId } }),
+    prisma.plan.deleteMany({ where: { userId } }),
+    prisma.aiRequest.updateMany({ where: { userId }, data: { userId: null, prompt: null } }),
+    prisma.placeOwner.deleteMany({ where: { userId } }),
     prisma.user.update({
       where: { id: userId },
       data: { name: 'Deleted user', email: null, phone: null, passwordHash: null, deletedAt: new Date(), homeAreaId: null, defaultBudgetNgwee: null },

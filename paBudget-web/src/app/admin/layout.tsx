@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { RequireAuth } from '@/components/ui';
 
-const NAV = [['/admin', 'Overview'], ['/admin/queue', 'Queue'], ['/admin/places', 'Places'], ['/admin/users', 'Users'], ['/admin/data', 'Areas & tags'], ['/admin/log', 'Audit log']];
+const NAV = [['/admin', 'Overview'], ['/admin/queue', 'Queue'], ['/admin/places', 'Places'], ['/admin/users', 'Users'], ['/admin/takedowns', 'Takedowns'], ['/admin/data', 'Areas & tags'], ['/admin/log', 'Audit log']];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const path = usePathname();

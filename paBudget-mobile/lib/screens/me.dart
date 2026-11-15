@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/format.dart';
 import '../providers.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../core/api.dart';
 import '../theme.dart';
+import 'planner.dart' show siteUrl;
 import '../widgets/common.dart';
 
 class SavedScreen extends ConsumerWidget {
@@ -64,6 +68,9 @@ class ProfileScreen extends ConsumerWidget {
                 ])),
               const SizedBox(height: 8),
               ListTile(leading: const Icon(Icons.list_alt), title: const Text('My contributions'), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/me/contributions')),
+              ListTile(leading: const Icon(Icons.bookmarks_outlined), title: const Text('Saved plans'), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/plans')),
+              ListTile(leading: const Icon(Icons.emoji_events_outlined), title: const Text('Leaderboard & badges'), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/leaderboard')),
+              if (user.role != 'USER') ListTile(leading: const Icon(Icons.storefront_outlined), title: const Text('Manage my business'), subtitle: const Text('Menu, photos, deals and stats are on the website'), trailing: const Icon(Icons.open_in_new), onTap: () => launchUrl(Uri.parse('$siteUrl/owner'), mode: LaunchMode.externalApplication)),
               ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('Settings'), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/me/settings')),
               ListTile(leading: const Icon(Icons.logout), title: const Text('Log out'), onTap: () => ref.read(authProvider.notifier).logout()),
             ]),
@@ -157,6 +164,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           if (_msg != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_msg!, textAlign: TextAlign.center)),
           const Divider(height: 40),
+          ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.privacy_tip_outlined), title: const Text('Privacy policy & terms'), onTap: () => launchUrl(Uri.parse('$siteUrl/privacy'), mode: LaunchMode.externalApplication)),
+          ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.report_outlined), title: const Text('Report content or request removal'), onTap: () => launchUrl(Uri.parse('$siteUrl/takedown'), mode: LaunchMode.externalApplication)),
+          OutlinedButton(
+            onPressed: () async {
+              try {
+                final data = await ref.read(apiProvider).get('/me/export');
+                await Clipboard.setData(ClipboardData(text: prettyJson(data)));
+                setState(() => _msg = 'Your data was copied to the clipboard');
+              } catch (e) { setState(() => _msg = errorText(e)); }
+            },
+            child: const Text('Copy my data (export)'),
+          ),
+          const SizedBox(height: 8),
           OutlinedButton(
             style: OutlinedButton.styleFrom(foregroundColor: Tokens.danger),
             onPressed: () async {

@@ -55,7 +55,7 @@ class _Body extends ConsumerWidget {
     final user = ref.watch(authProvider).value;
     return ListView(padding: const EdgeInsets.only(bottom: 32), children: [
       if (p.images.isEmpty)
-        Container(height: 160, margin: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: Tokens.brandSoft, borderRadius: BorderRadius.circular(18)), child: const Center(child: Text('🍽️', style: TextStyle(fontSize: 48))))
+        Container(height: 160, margin: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: Tokens.sunken, borderRadius: BorderRadius.circular(18)), child: const Center(child: Icon(Icons.restaurant, size: 40, color: Tokens.faint)))
       else
         SizedBox(
           height: 220,
@@ -64,7 +64,7 @@ class _Body extends ConsumerWidget {
             itemBuilder: (_, i) => ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: AspectRatio(aspectRatio: 4 / 3, child: Stack(fit: StackFit.expand, children: [
-                CachedNetworkImage(imageUrl: i == 0 ? p.images[i].medium : p.images[i].thumb, fit: BoxFit.cover, placeholder: (_, _) => const ColoredBox(color: Tokens.brandSoft)),
+                CachedNetworkImage(imageUrl: i == 0 ? p.images[i].medium : p.images[i].thumb, fit: BoxFit.cover, placeholder: (_, _) => const ColoredBox(color: Tokens.sunken)),
                 if (p.images[i].by != null) Positioned(left: 6, bottom: 6, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(6)), child: Text('Photo by ${p.images[i].by}', style: const TextStyle(color: Colors.white, fontSize: 11)))),
               ])),
             ),
@@ -87,8 +87,10 @@ class _Body extends ConsumerWidget {
           Text('${p.category} · ${p.area}${p.address != null ? ' · ${p.address}' : ''}', style: const TextStyle(color: Tokens.muted)),
           const SizedBox(height: 8),
           Wrap(spacing: 12, crossAxisAlignment: WrapCrossAlignment.center, children: [
-            Text(priceLevelLabel(p.priceLevel), style: const TextStyle(fontWeight: FontWeight.w800, color: Tokens.brand)),
-            if (p.avgSpendPpNgwee != null) Text('~${kwacha(p.avgSpendPpNgwee)} per person'),
+            if (p.avgSpendPpNgwee != null) Text.rich(TextSpan(children: [
+              TextSpan(text: kwacha(p.avgSpendPpNgwee), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.3)),
+              const TextSpan(text: '  per person', style: TextStyle(color: Tokens.muted, fontSize: 13)),
+            ])),
             Stars(p.rating, count: p.ratingCount),
             if (p.openNow == true) const Text('Open now', style: TextStyle(color: Tokens.brand, fontWeight: FontWeight.w600)),
             if (p.openNow == false) const Text('Closed now', style: TextStyle(color: Tokens.muted)),
@@ -112,7 +114,7 @@ class _Body extends ConsumerWidget {
             ? const Text('No menu yet. Be the first to add it!', style: TextStyle(color: Tokens.muted))
             : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 for (final s in p.menu) ...[
-                  Padding(padding: const EdgeInsets.only(top: 8, bottom: 2), child: Text(s.name.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: .8, color: Tokens.brand))),
+                  Padding(padding: const EdgeInsets.only(top: 8, bottom: 2), child: Text(s.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Tokens.brand))),
                   for (final i in s.items)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -147,10 +149,37 @@ class _Body extends ConsumerWidget {
           ActionChip(avatar: const Icon(Icons.restaurant_menu, size: 16), label: const Text('Add / update menu'), onPressed: () => requireContributor(context, ref, () => context.push('/contribute/${p.slug}/menu'))),
           ActionChip(avatar: const Icon(Icons.photo_camera_outlined, size: 16), label: const Text('Add photos'), onPressed: () => requireContributor(context, ref, () => context.push('/contribute/${p.slug}/photos'))),
           ActionChip(avatar: const Icon(Icons.edit_outlined, size: 16), label: const Text('Suggest an edit'), onPressed: () => requireContributor(context, ref, () => context.push('/contribute/${p.slug}/edit'))),
+          ActionChip(avatar: const Icon(Icons.storefront_outlined, size: 16), label: const Text('Claim this business'), onPressed: () => requireContributor(context, ref, () => _claim(context, ref))),
           ActionChip(avatar: const Icon(Icons.flag_outlined, size: 16), label: const Text('Report'), onPressed: () => requireContributor(context, ref, () => _report(context, ref))),
         ]),
       ),
     ]);
+  }
+
+  Future<void> _claim(BuildContext context, WidgetRef ref) async {
+    final msg = TextEditingController();
+    final phone = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Claim ${p.name}'),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Text('We’ll call you to verify before approving. Owners can edit the menu, photos and deals from the website.'),
+          const SizedBox(height: 12),
+          TextField(controller: msg, decoration: const InputDecoration(labelText: 'Your role (e.g. manager)')),
+          const SizedBox(height: 8),
+          TextField(controller: phone, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'Phone number')),
+        ]),
+        actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')), TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Send claim'))],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    try {
+      await ref.read(apiProvider).post('/submissions/claim', body: {'placeId': p.id, 'message': msg.text.trim(), 'contactPhone': phone.text.trim()});
+      if (context.mounted) showSnack(context, 'Claim sent. We’ll be in touch.');
+    } catch (e) {
+      if (context.mounted) showSnack(context, errorText(e));
+    }
   }
 
   Future<void> _report(BuildContext context, WidgetRef ref) async {

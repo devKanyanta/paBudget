@@ -22,10 +22,11 @@ const geminiProvider: AiProvider = async ({ prompt, images }) => {
 };
 
 /** All Gemini calls go through here so every request is logged with token counts (NFR-09). */
-export async function aiJson<T = unknown>(kind: string, userId: string | null, args: { prompt: string; images?: AiImage[] }): Promise<T> {
+export async function aiJson<T = unknown>(kind: string, userId: string | null, args: { prompt: string; images?: AiImage[] }, acc?: { tokensIn: number; tokensOut: number }): Promise<T> {
   if (!aiConfigured()) throw new HttpError(503, 'AI is not configured', 'ai_unavailable');
   const t0 = Date.now();
   const result = await (override ?? geminiProvider)(args);
+  if (acc) { acc.tokensIn += result.tokensIn; acc.tokensOut += result.tokensOut; }
   await prisma.aiRequest.create({
     data: { userId, kind, prompt: args.prompt.slice(0, 2000), response: result.json as object, tokensIn: result.tokensIn, tokensOut: result.tokensOut, latencyMs: Date.now() - t0 },
   }).catch(() => {});

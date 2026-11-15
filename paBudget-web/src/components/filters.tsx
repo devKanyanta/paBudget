@@ -1,5 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { LocateFixed } from 'lucide-react';
 import { useState } from 'react';
 import type { Meta } from '@/lib/types';
 
@@ -50,11 +51,11 @@ export function Filters({ meta }: { meta: Meta }) {
         <select className="input" value={sp.get('sort') ?? ''} onChange={(e) => push({ sort: e.target.value || undefined })} aria-label="Sort">
           <option value="">Top rated</option><option value="cheapest">Cheapest</option><option value="nearest">Nearest</option><option value="newest">Newest</option>
         </select>
-        <label className="chip justify-center gap-2"><input type="checkbox" checked={sp.get('openNow') === 'true'} onChange={(e) => push({ openNow: e.target.checked ? 'true' : undefined })} /> Open now</label>
+        <label className={`${sp.get('openNow') === 'true' ? 'chip-active' : 'chip'} cursor-pointer justify-center !py-3 text-sm`}><input className="sr-only" type="checkbox" checked={sp.get('openNow') === 'true'} onChange={(e) => push({ openNow: e.target.checked ? 'true' : undefined })} />Open now</label>
       </div>
       <div className="flex flex-wrap gap-2">
         {meta.tags.map((t) => <button type="button" key={t.id} onClick={() => toggleTag(t.slug)} className={`chip ${tags.includes(t.slug) ? 'chip-active' : ''}`}>{t.name}</button>)}
-        <button type="button" onClick={near} className="chip">📍 Near me</button>
+        <button type="button" onClick={near} className="chip"><LocateFixed aria-hidden className="size-3.5" />Near me</button>
       </div>
       <div className="flex gap-2"><button className="btn-primary flex-1">Search</button><button type="button" className="btn-outline" onClick={() => router.push('/places')}>Clear</button></div>
     </form>

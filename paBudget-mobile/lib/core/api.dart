@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const apiUrl = String.fromEnvironment('API_URL', defaultValue: 'http://10.0.2.2:4000');
+const apiUrl = String.fromEnvironment('API_URL', defaultValue: 'http://192.168.0.189:4000');
 
 class ApiException implements Exception {
   ApiException(this.status, this.message, {this.issues = const []});

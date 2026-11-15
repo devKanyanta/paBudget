@@ -19,6 +19,7 @@ export type PlaceDetail = Omit<PlaceSummary, 'tags' | 'thumb' | 'distanceM' | 'c
   tags: { slug: string; name: string; type: string }[];
   images: { id: string; width: number; height: number; thumb: string; medium: string; full: string; by: string | null }[];
   menu: { id: string; name: string; items: MenuItem[] }[];
+  deals?: { id: string; title: string; priceNgwee: number; endsAt: string }[];
 };
 export type Review = {
   id: string; rating: number; body: string | null; amountPaidNgwee: number | null; groupSize: number | null;
@@ -38,3 +39,35 @@ export type AdminSubmission = {
   user: { id: string; name: string; trustLevel: string; approved: number; rejected: number };
   images: { id: string; thumb?: string; medium?: string; full?: string }[];
 };
+
+// ---- AI planner ----
+export type PlannerFilters = {
+  budgetNgwee: number | null; groupSize: number; areaSlug: string | null; tags: string[];
+  day: string | null; time: string | null; occasion: string | null;
+};
+export type BundleItem = { itemId: string; name: string; priceNgwee: number; qty: number; role: string };
+export type PlanOption = {
+  placeId: string; slug: string; name: string; area: string; category: string; thumb: string | null; rating: number | null; tags: string[];
+  reason: string; bundle: { id: string; kind: string; items: BundleItem[]; totalNgwee: number }; overBudgetNgwee: number; recentBillPpNgwee: number | null;
+};
+export type PlannerReply = { filters: PlannerFilters; message: string; needs?: 'budget'; notes: string[]; options: PlanOption[]; remaining: number };
+export type SavedPlan = {
+  id: string; title: string; budgetNgwee: number; groupSize: number; shareToken: string; createdAt: string; by: string; totalNgwee: number;
+  stops: { placeId: string; slug: string; name: string; area: string; status: string; thumb: string | null; totalNgwee: number; items: BundleItem[] }[];
+};
+
+// ---- community ----
+export type LeaderRow = { rank: number; name: string; points: number; badges: number; isMe: boolean };
+export type BadgeRow = { id: string; name: string; rule: string; earnedAt: string | null };
+
+// ---- owner ----
+export type OwnerPlaceRow = { id: string; name: string; slug: string; area: string; status: string; views30d: number };
+export type OwnerPlace = {
+  id: string; name: string; slug: string; status: string; description: string | null; address: string | null; phone: string | null; whatsapp: string | null;
+  avgSpendPpNgwee: number | null; hours: { weekday: number; opensAt: string; closesAt: string }[]; tagSlugs: string[];
+  images: { id: string; thumb?: string; medium?: string }[];
+  menu: { name: string; items: { id: string; name: string; description: string | null; priceNgwee: number; isAvailable: boolean }[] }[];
+  deals: { id: string; title: string; priceNgwee: number; startsAt: string; endsAt: string }[];
+};
+export type OwnerStats = { days: number; totals: Record<string, number>; series: { date: string; views: number }[] };
+export type Takedown = { id: string; targetType: string; targetId: string | null; reason: string; contactName: string; contactEmail: string; status: string; dueAt: string; createdAt: string; overdue: boolean; note: string | null };

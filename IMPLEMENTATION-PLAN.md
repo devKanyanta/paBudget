@@ -86,13 +86,13 @@ Launch area, domain/branding, Cloudflare R2 + Gemini keys, Figma designs, hostin
 
 ---
 
-## 8. Progress (phases 1–3)
+## 8. Progress (phases 1–5)
 
 | Area | Status |
 | --- | --- |
-| Backend (`paBudget-backend`) | Done: schema + migrations, auth (email or phone + password, refresh rotation), catalogue/search/filters, uploads + WebP pipeline, submissions engine (7 types), AI screening + menu extraction (Gemini, mockable), trust levels, admin API, audit log. 27 integration tests. |
-| Web (`paBudget-web`) | Done: SSR place pages + SEO, search/filters, auth, contribute flows, my contributions, favourites, admin panel (queue, batch approve, place editor, merge, users, areas/tags, audit log). Owner dashboard is phase 5. |
-| Mobile (`paBudget-mobile`) | Done: browse/filters/near me, place detail, auth, contribute flows, offline cache + offline draft queue. 13 tests. |
+| Backend (`paBudget-backend`) | Done: schema + migrations, auth (email or phone + password, refresh rotation), catalogue/search/filters, uploads + WebP pipeline, submissions engine (7 types), AI screening + menu extraction (Gemini, mockable), trust levels, admin API, audit log. **Phase 4–5:** AI planner (parse → candidates → code-built bundles → rank → validate, with fallbacks and a daily limit), saved/shared plans, owner API (details, menu, photos, reviews replies, deals, stats), leaderboard + badges, data export, account deletion, takedown requests (72 h), Sentry hook, DB-aware `/health`, backup script. 47 integration tests incl. the Gate 2 harness. |
+| Web (`paBudget-web`) | Done: SSR place pages + SEO, search/filters, auth, contribute flows, my contributions, favourites, admin panel (queue, batch approve, place editor, merge, users, areas/tags, audit log). **Phase 4–5:** planner chat, shared plan page, saved plans, owner dashboard (`/owner`: details, hours, menu with AI scan, photos, reviews, deals, stats), claim flow, leaderboard/badges, data export, takedown form + admin queue. |
+| Mobile (`paBudget-mobile`) | Done: browse/filters/near me, place detail, auth, contribute flows, offline cache + offline draft queue. **Phase 4–5:** Plan tab (chat, bill breakdown, save, WhatsApp share), saved plans, leaderboard + badges, claim a business, data export/privacy links. Owner management stays on the website. 18 tests. |
 
 **Deviations from the original plan (environment-driven)**
 - No PostGIS: places store `lat`/`lng`; distance uses haversine in code; duplicate check uses `pg_trgm` + a bounding box.
@@ -105,3 +105,7 @@ Launch area, domain/branding, Cloudflare R2 + Gemini keys, Figma designs, hostin
 **Still needs real-world input:** Figma designs, the 15–20 real seed places (`npm run seed:demo` only creates fictional ones), Gemini/R2 keys, launch area, and lawyer review of the draft terms/privacy pages.
 
 **SMS removed (by request):** there is no OTP/SMS phone verification. Accounts use email or phone + password; a phone number is an optional, unverified login identifier. Contributing requires only a signed-in account; abuse limits (20 submissions/day, 5 new places/day, auth rate limiting) and moderation still apply. This replaces the "verified phone" requirement in FR-01 and NFR-15 of the URD, so fake-account protection is weaker and worth revisiting (e.g. email verification, captcha) before launch.
+
+**Gate 2 (AI totals match the database):** `paBudget-backend/test/planner.test.ts` sends 100 prompts, rotating between a working, a hallucinating and a garbage-returning fake Gemini, and asserts that every returned place exists, every line item belongs to that place at its current price, and every total equals the database recomputation (over-budget gaps included). It passes.
+
+**Still outside the code:** Gemini/R2 keys, `SENTRY_DSN`, hosting + custom domain, the daily `scripts/backup.sh` cron job, Play Store listing, the 15–20 real seed places, lawyer review of terms/privacy, and the closed beta. Not built (post-launch per the plan): mobile-money payments and featured slots (FR-57), multi-stop plans (FR-34, the data model supports several stops per plan), iOS, Bemba/Nyanja. Mobile owner screens (FR-50–58) are web-only. Redis/BullMQ, PostGIS and NestJS remain deliberate deviations listed above.

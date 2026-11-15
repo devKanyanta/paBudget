@@ -248,3 +248,26 @@ adminRouter.get('/stats', wrap(async (_req, res) => {
   ]);
   res.json({ users, livePlaces: live, pendingSubmissions: pending, submissionsLast24h: today, approvalRate: approved + rejected ? approved / (approved + rejected) : null });
 }));
+
+// ---- takedown requests (NFR-16: 72 h) ----
+adminRouter.get('/takedowns', wrap(async (req, res) => {
+  const b = parse(z.object({ status: z.enum(['OPEN', 'ACTIONED', 'DISMISSED']).default('OPEN') }), req.query);
+  const rows = await prisma.takedown.findMany({ where: { status: b.status }, orderBy: b.status === 'OPEN' ? { dueAt: 'asc' } : { createdAt: 'desc' }, take: 100 });
+  res.json(rows.map((t) => ({ ...t, overdue: t.status === 'OPEN' && t.dueAt < new Date() })));
+}));
+adminRouter.post('/takedowns/:id/resolve', wrap(async (req, res) => {
+  const b = parse(z.object({ action: z.enum(['remove', 'dismiss']), note: z.string().max(500).optional() }), req.body);
+  const t = await prisma.takedown.findUnique({ where: { id: req.params.id as string } });
+  if (!t) throw notFound();
+  if (t.status !== 'OPEN') throw badRequest('Already resolved');
+  await prisma.$transaction(async (tx) => {
+    if (b.action === 'remove' && t.targetId && /^[0-9a-f-]{36}$/i.test(t.targetId)) {
+      if (t.targetType === 'place') await tx.place.updateMany({ where: { id: t.targetId }, data: { status: 'HIDDEN' } });
+      if (t.targetType === 'image') await tx.image.updateMany({ where: { id: t.targetId }, data: { status: 'REJECTED' } });
+      if (t.targetType === 'review') await tx.review.updateMany({ where: { id: t.targetId }, data: { status: 'REJECTED' } });
+    }
+    await tx.takedown.update({ where: { id: t.id }, data: { status: b.action === 'remove' ? 'ACTIONED' : 'DISMISSED', note: b.note, resolvedById: req.user!.id, resolvedAt: new Date() } });
+    await tx.moderationLog.create({ data: { adminId: req.user!.id, action: `takedown_${b.action}`, note: `${t.targetType}:${t.targetId ?? '-'}` } });
+  });
+  res.status(204).end();
+}));

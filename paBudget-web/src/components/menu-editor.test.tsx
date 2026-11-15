@@ -17,7 +17,7 @@ describe('menu editor', () => {
     render(<MenuEditor value={emptyMenu()} onChange={onChange} />);
     fireEvent.change(screen.getAllByLabelText('Item name')[0], { target: { value: 'Pizza' } });
     expect(onChange.mock.calls[0][0][0].items[0].name).toBe('Pizza');
-    fireEvent.click(screen.getAllByText('＋ Add item')[0]);
+    fireEvent.click(screen.getAllByText('Add item')[0]);
     expect(onChange.mock.calls[1][0][0].items).toHaveLength(2);
   });
 });

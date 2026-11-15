@@ -1,0 +1,21 @@
+/* The page is the ground: no plate behind the window. The window is pinned top and sides and runs off the bottom. */
+.pd .ss-stage { overflow: hidden; background: transparent; }
+
+/* Pinned top and sides, running off the bottom, so it reads as the product and not a boxed screenshot */
+.pd-win { position: absolute; top: 12px; left: 16px; width: 508px; height: 420px; box-shadow: 0 0 0 1px rgb(25 26 23 / .06), 0 18px 28px -22px rgb(25 26 23 / .35); /* no sideways spread, so the stage never cuts it */ }
+.pd-body { display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 16px 20px 52px; background: var(--ss-surface); }
+.pd-thread { display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; min-height: 0; padding-bottom: 18px; overflow: hidden; }
+.pd-q { display: flex; justify-content: flex-end; }
+.pd-q .ss-text { max-width: 80%; white-space: normal; padding: 8px 14px; border-radius: 16px; background: var(--ss-accent); color: #fff; font-size: 13px; }
+.pd-thinking { color: var(--ss-text); font-size: 13px; }
+.pd-a { display: grid; gap: 12px; }
+.pd-bill { display: grid; gap: 7px; margin: 0; padding: 12px 14px; list-style: none; border-radius: 12px; background: var(--ss-well); }
+.pd-line { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; opacity: 0; translate: 0 4px; transition: opacity .3s ease, translate .4s cubic-bezier(.22, 1, .36, 1); }
+.pd-line[data-on] { opacity: 1; translate: 0 0; }
+.pd-total { display: flex; justify-content: space-between; align-items: baseline; padding: 0 2px; }
+.pd-total .ss-text { font-size: 13px; color: var(--ss-text); }
+.pd-sum { font-size: 22px; font-weight: 700; color: var(--ss-text-strong); letter-spacing: -0.02em; }
+.pd-under { font-size: 12px; color: var(--ss-accent); }
+
+.pd .ss-stage[data-layout='compact'] .pd-win { left: 8px; width: 342px; top: 8px; }
+.pd .ss-stage[data-layout='compact'] .pd-q .ss-text { max-width: 96%; font-size: 12.5px; }

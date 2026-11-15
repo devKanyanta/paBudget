@@ -450,3 +450,27 @@ model ModerationLog {
   admin      User        @relation(fields: [adminId], references: [id])
   submission Submission? @relation(fields: [submissionId], references: [id])
 }
+
+enum TakedownStatus {
+  OPEN
+  ACTIONED
+  DISMISSED
+}
+
+/// Content-rights / privacy takedown requests (NFR-16): must be handled within 72 hours.
+model Takedown {
+  id           String         @id @default(uuid())
+  targetType   String // place | image | review | other
+  targetId     String?
+  reason       String
+  contactName  String
+  contactEmail String
+  status       TakedownStatus @default(OPEN)
+  note         String?
+  resolvedById String?
+  resolvedAt   DateTime?
+  dueAt        DateTime
+  createdAt    DateTime       @default(now())
+
+  @@index([status, dueAt])
+}

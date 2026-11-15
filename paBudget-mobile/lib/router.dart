@@ -6,6 +6,7 @@ import 'screens/contribute.dart';
 import 'screens/explore.dart';
 import 'screens/me.dart';
 import 'screens/place_detail.dart';
+import 'screens/planner.dart';
 import 'widgets/common.dart';
 
 class Shell extends ConsumerStatefulWidget {
@@ -18,17 +19,18 @@ class _ShellState extends ConsumerState<Shell> {
   int _tab = 0;
   @override
   Widget build(BuildContext context) {
-    final pages = const [ExploreScreen(), SavedScreen(), SizedBox.shrink(), ProfileScreen()];
+    final pages = const [ExploreScreen(), PlannerScreen(), SavedScreen(), SizedBox.shrink(), ProfileScreen()];
     return Scaffold(
-      body: IndexedStack(index: _tab == 2 ? 0 : _tab, children: pages),
+      body: IndexedStack(index: _tab == 3 ? 0 : _tab, children: pages),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab == 2 ? 0 : _tab,
+        selectedIndex: _tab == 3 ? 0 : _tab,
         onDestinationSelected: (i) {
-          if (i == 2) { requireContributor(context, ref, () => context.push('/contribute/place')); return; }
+          if (i == 3) { requireContributor(context, ref, () => context.push('/contribute/place')); return; }
           setState(() => _tab = i);
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: 'Explore'),
+          NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Plan'),
           NavigationDestination(icon: Icon(Icons.favorite_border), selectedIcon: Icon(Icons.favorite), label: 'Saved'),
           NavigationDestination(icon: Icon(Icons.add_circle_outline), selectedIcon: Icon(Icons.add_circle), label: 'Add'),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Me'),
@@ -45,6 +47,8 @@ final routerProvider = Provider<GoRouter>((ref) => GoRouter(
         GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
         GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
         GoRoute(path: '/me/contributions', builder: (_, _) => const ContributionsScreen()),
+        GoRoute(path: '/plans', builder: (_, _) => const SavedPlansScreen()),
+        GoRoute(path: '/leaderboard', builder: (_, _) => const LeaderboardScreen()),
         GoRoute(path: '/me/settings', builder: (_, _) => const SettingsScreen()),
         GoRoute(path: '/contribute/place', builder: (_, _) => const AddPlaceScreen()),
         GoRoute(path: '/contribute/:slug/review', builder: (_, s) => ReviewScreen(slug: s.pathParameters['slug']!)),

@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
+import { Camera, X } from 'lucide-react';
 import { compressImage, uploadImage } from '@/lib/api';
 
 export type Uploaded = { id: string; preview: string };
@@ -34,15 +35,15 @@ export function ImageUploader({ value, onChange, max = 10, purpose = 'photo', la
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {value.map((u) => (
-          <div key={u.id} className="relative h-20 w-20 overflow-hidden rounded-xl bg-brand-soft">
+          <div key={u.id} className="relative size-20 overflow-hidden rounded-xl bg-sunken">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={u.preview} alt="" className="h-full w-full object-cover" />
-            <button type="button" aria-label="Remove photo" onClick={() => onChange(value.filter((x) => x.id !== u.id))} className="absolute right-0.5 top-0.5 rounded-full bg-black/60 px-1.5 text-xs text-white">✕</button>
+            <img src={u.preview} alt="" className="size-full object-cover" />
+            <button type="button" aria-label="Remove photo" onClick={() => onChange(value.filter((x) => x.id !== u.id))} className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-black/60 text-white"><X aria-hidden className="size-3" /></button>
           </div>
         ))}
         {value.length < max && (
-          <button type="button" onClick={() => input.current?.click()} disabled={busy > 0} className="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-xs text-muted hover:border-brand">
-            {busy > 0 ? 'Uploading…' : <><span className="text-xl">📷</span>{label}</>}
+          <button type="button" onClick={() => input.current?.click()} disabled={busy > 0} className="flex size-20 flex-col items-center justify-center gap-1 rounded-xl bg-sunken text-xs text-muted transition hover:brightness-95">
+            {busy > 0 ? 'Uploading…' : <><Camera aria-hidden className="size-5" />{label}</>}
           </button>
         )}
       </div>

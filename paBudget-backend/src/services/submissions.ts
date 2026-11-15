@@ -44,7 +44,7 @@ export const payloadSchemas = {
   CLAIM: z.object({ message: z.string().min(3).max(500), contactPhone: z.string().max(20) }),
 } satisfies Record<SubmissionType, z.ZodType>;
 
-const POINTS: Record<SubmissionType, number> = { NEW_PLACE: 20, MENU: 15, PHOTOS: 5, REVIEW: 5, EDIT: 3, FLAG: 1, CLAIM: 0 };
+export const POINTS: Record<SubmissionType, number> = { NEW_PLACE: 20, MENU: 15, PHOTOS: 5, REVIEW: 5, EDIT: 3, FLAG: 1, CLAIM: 0 };
 const AUTO_TYPES: SubmissionType[] = ['REVIEW', 'PHOTOS', 'EDIT', 'MENU'];
 
 type Tx = Prisma.TransactionClient;

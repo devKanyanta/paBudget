@@ -42,8 +42,8 @@ class Thumb extends StatelessWidget {
           width: size,
           height: size,
           child: url == null
-              ? const ColoredBox(color: Tokens.brandSoft, child: Center(child: Text('🍽️', style: TextStyle(fontSize: 28))))
-              : CachedNetworkImage(imageUrl: url!, fit: BoxFit.cover, memCacheWidth: (size * 2).round(), placeholder: (_, _) => const ColoredBox(color: Tokens.brandSoft), errorWidget: (_, _, _) => const ColoredBox(color: Tokens.brandSoft)),
+              ? const ColoredBox(color: Tokens.sunken, child: Center(child: Icon(Icons.restaurant, size: 28, color: Tokens.faint)))
+              : CachedNetworkImage(imageUrl: url!, fit: BoxFit.cover, memCacheWidth: (size * 2).round(), placeholder: (_, _) => const ColoredBox(color: Tokens.sunken), errorWidget: (_, _, _) => const ColoredBox(color: Tokens.sunken)),
         ),
       );
 }
@@ -56,8 +56,8 @@ class Stars extends StatelessWidget {
   Widget build(BuildContext context) => value == null
       ? const Text('No reviews yet', style: TextStyle(fontSize: 12, color: Tokens.muted))
       : Text.rich(TextSpan(children: [
-          const TextSpan(text: '★ ', style: TextStyle(color: Tokens.accent)),
-          TextSpan(text: value!.toStringAsFixed(1)),
+          const WidgetSpan(alignment: PlaceholderAlignment.middle, child: Padding(padding: EdgeInsets.only(right: 3), child: Icon(Icons.star_rounded, size: 15, color: Tokens.accent))),
+          TextSpan(text: value!.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.w600)),
           if (count != null) TextSpan(text: ' ($count)', style: const TextStyle(color: Tokens.muted)),
         ]), style: const TextStyle(fontSize: 12.5));
 }
@@ -81,14 +81,14 @@ class PlaceCard extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Expanded(child: Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16))),
-                  if (p.isFeatured) const Chip(label: Text('Featured'), visualDensity: VisualDensity.compact, backgroundColor: Tokens.brandSoft),
+                  if (p.isFeatured) const Chip(label: Text('Featured', style: TextStyle(color: Tokens.brand, fontWeight: FontWeight.w700)), visualDensity: VisualDensity.compact, backgroundColor: Tokens.brandSoft),
                 ]),
                 Text('${p.category} · ${p.area}${dist != null ? ' · $dist' : ''}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5, color: Tokens.muted)),
-                const SizedBox(height: 4),
-                Row(children: [
-                  Text(priceLevelLabel(p.priceLevel), style: const TextStyle(fontWeight: FontWeight.w800, color: Tokens.brand)),
-                  const SizedBox(width: 8),
-                  Text(p.avgSpendPpNgwee != null ? '~${kwacha(p.avgSpendPpNgwee)} pp' : 'Menu needed', style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 8),
+                Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
+                  Text(p.avgSpendPpNgwee != null ? kwacha(p.avgSpendPpNgwee) : '—', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.3)),
+                  const SizedBox(width: 6),
+                  Text(p.avgSpendPpNgwee != null ? 'per person' : 'Menu needed', style: const TextStyle(fontSize: 12, color: Tokens.muted)),
                 ]),
                 const SizedBox(height: 2),
                 Row(children: [

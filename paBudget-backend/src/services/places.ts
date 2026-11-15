@@ -82,6 +82,7 @@ export async function getPlace(idOrSlug: string) {
       tags: { include: { tag: true } },
       images: { where: { status: 'APPROVED' }, orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }], include: { uploadedBy: { select: { name: true } } } },
       sections: { orderBy: { sortOrder: 'asc' }, include: { items: { where: { isAvailable: true }, orderBy: { priceNgwee: 'asc' } } } },
+      deals: { where: { startsAt: { lte: new Date() }, endsAt: { gt: new Date() } }, orderBy: { endsAt: 'asc' } },
     },
   });
   if (!p) throw notFound('Place not found');
@@ -106,6 +107,7 @@ export async function getPlace(idOrSlug: string) {
       id: s.id, name: s.name,
       items: s.items.map((i) => ({ id: i.id, name: i.name, description: i.description, priceNgwee: i.priceNgwee, lastConfirmedAt: i.lastConfirmedAt, image: i.imageId ? itemImg.get(i.imageId) ?? null : null })),
     })),
+    deals: p.deals.map((d) => ({ id: d.id, title: d.title, priceNgwee: d.priceNgwee, endsAt: d.endsAt })),
     rating: r?.rating ?? null, ratingCount: r?.ratingCount ?? 0,
   };
 }

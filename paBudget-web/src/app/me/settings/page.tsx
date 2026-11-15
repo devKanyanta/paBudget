@@ -20,6 +20,14 @@ export default function Page() {
     e.preventDefault(); setErr(null); setMsg('');
     try { await api('/me', { method: 'PATCH', body: { name, homeAreaId: area || null, defaultBudgetNgwee: budget ? toNgwee(budget) : null } }); await reload(); setMsg('Saved'); } catch (e) { setErr(e); }
   }
+  async function exportData() {
+    setErr(null);
+    try {
+      const data = await api('/me/export');
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a'); a.href = url; a.download = 'pabudget-my-data.json'; a.click(); URL.revokeObjectURL(url);
+    } catch (e) { setErr(e); }
+  }
   async function del() {
     if (!window.confirm('Delete your account and personal data? This cannot be undone. Places and reviews you contributed stay, without your name.')) return;
     await api('/me', { method: 'DELETE' }); await signOut(); router.replace('/');
@@ -35,6 +43,7 @@ export default function Page() {
         <button className="btn-primary w-full">Save</button>
         {msg && <p className="text-center text-sm text-brand">{msg}</p>}
         <hr className="border-border" />
+        <button type="button" className="btn-outline w-full" onClick={() => void exportData()}>Download my data</button>
         <button type="button" className="btn-outline w-full text-danger" onClick={() => void del()}>Delete my account</button>
       </form>
     </RequireAuth>

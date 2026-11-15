@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <main className="mx-auto w-full max-w-5xl px-4 py-5">{children}</main>
           <footer className="mx-auto max-w-5xl px-4 py-8 text-xs text-muted">
-            Prices are shared by the community and may change. <a className="underline" href="/terms">Terms</a> · <a className="underline" href="/privacy">Privacy</a>
+            Prices are shared by the community and may change. <a className="underline" href="/terms">Terms</a> · <a className="underline" href="/privacy">Privacy</a> · <a className="underline" href="/takedown">Report content</a> · <a className="underline" href="/leaderboard">Leaderboard</a>
           </footer>
         </Providers>
       </body>

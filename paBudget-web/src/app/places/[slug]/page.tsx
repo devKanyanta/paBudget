@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
+import { Tag, UtensilsCrossed } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { ApiError, publicGet } from '@/lib/api';
 import type { PlaceDetail, Review } from '@/lib/types';
 import { groupHours, kwacha, priceLevelLabel, timeAgo } from '@/lib/format';
 import { Stars } from '@/components/place-card';
-import { ContactButtons, ContributeLinks, FavouriteButton, ViewTracker } from '@/components/place-actions';
+import { ContactButtons, ContributeLinks, FavouriteButton, MenuViewTracker, ViewTracker } from '@/components/place-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
     <article className="space-y-5">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <ViewTracker placeId={p.id} />
+      <MenuViewTracker placeId={p.id} />
       {p.images.length > 0 ? (
         <div className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1">
           {p.images.map((i, idx) => (
@@ -47,7 +49,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
             </figure>
           ))}
         </div>
-      ) : <div className="flex h-40 items-center justify-center rounded-2xl bg-brand-soft text-5xl">🍽️</div>}
+      ) : <div className="flex h-40 items-center justify-center rounded-2xl bg-sunken text-faint"><UtensilsCrossed aria-hidden className="size-10" /></div>}
 
       <header className="space-y-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
@@ -58,8 +60,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
           <FavouriteButton placeId={p.id} />
         </div>
         <div className="flex flex-wrap items-center gap-3 text-sm">
-          <span className="font-bold text-brand">{priceLevelLabel(p.priceLevel)}</span>
-          {p.avgSpendPpNgwee != null && <span>~{kwacha(p.avgSpendPpNgwee)} per person</span>}
+          {p.avgSpendPpNgwee != null && <span className="num"><strong className="text-xl font-bold tracking-tight">{kwacha(p.avgSpendPpNgwee)}</strong> <span className="text-muted">per person</span></span>}
           <Stars value={p.rating} count={p.ratingCount} />
           {p.openNow === true && <span className="font-medium text-brand">Open now</span>}
           {p.openNow === false && <span className="text-muted">Closed now</span>}
@@ -70,19 +71,25 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
         <ContactButtons placeId={p.id} phone={p.phone} whatsapp={p.whatsapp} lat={p.lat} lng={p.lng} />
       </header>
 
-      <section id="menu" className="card p-4">
+      {p.deals && p.deals.length > 0 && (
+        <section className="space-y-2" aria-label="Deals">
+          {p.deals.map((d) => <div key={d.id} className="flex items-start gap-2.5 rounded-2xl bg-accent/10 p-3.5 text-sm"><Tag aria-hidden className="mt-0.5 size-4 shrink-0 text-accent" /><div><strong>{d.title}</strong> · {kwacha(d.priceNgwee)}<span className="block text-xs text-muted">Until {new Date(d.endsAt).toLocaleDateString()}</span></div></div>)}
+        </section>
+      )}
+
+      <section id="menu" className="card p-5">
         <div className="mb-3 flex items-baseline justify-between gap-2">
           <h2 className="text-lg font-bold">Menu & prices</h2>
           <span className="text-xs text-muted">Updated {timeAgo(p.menuUpdatedAt)}{p.menuAddedBy ? ` · added by ${p.menuAddedBy}` : ''}</span>
         </div>
         {p.menu.length === 0 ? <p className="text-sm text-muted">No menu yet. Be the first to add it!</p> : p.menu.map((s) => (
           <div key={s.id} className="mb-4 last:mb-0">
-            <h3 className="mb-1 text-sm font-semibold uppercase tracking-wide text-brand">{s.name}</h3>
+            <h3 className="mb-1 text-sm font-semibold text-brand">{s.name}</h3>
             <ul className="divide-y divide-border">
               {s.items.map((i) => (
                 <li key={i.id} className="flex items-baseline justify-between gap-3 py-2 text-sm">
                   <span><span className="font-medium">{i.name}</span>{i.description && <span className="block text-xs text-muted">{i.description}</span>}</span>
-                  <span className="shrink-0 font-semibold tabular-nums">{kwacha(i.priceNgwee)}</span>
+                  <span className="num shrink-0 font-semibold">{kwacha(i.priceNgwee)}</span>
                 </li>
               ))}
             </ul>
@@ -91,9 +98,9 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
       </section>
 
       {hours.some((h) => h.slots.length) && (
-        <section className="card p-4">
-          <h2 className="mb-2 text-lg font-bold">Opening hours</h2>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">{hours.map((h) => <div key={h.day} className="contents"><dt className="font-medium">{h.day}</dt><dd className="text-muted">{h.slots.join(', ') || 'Closed'}</dd></div>)}</dl>
+        <section className="card p-5">
+          <h2 className="mb-3 text-lg font-bold">Opening hours</h2>
+          {new Set(hours.map((h) => h.slots.join())).size === 1 ? <p className="text-sm"><span className="font-medium">Every day</span> <span className="text-muted">{hours[0].slots.join(', ')}</span></p> : <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">{hours.map((h) => <div key={h.day} className="contents"><dt className="font-medium">{h.day}</dt><dd className="text-muted">{h.slots.join(', ') || 'Closed'}</dd></div>)}</dl>}
         </section>
       )}
 
@@ -101,13 +108,13 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
         <h2 className="text-lg font-bold">Reviews</h2>
         {reviews.length === 0 && <p className="text-sm text-muted">No reviews yet.</p>}
         {reviews.map((r) => (
-          <div key={r.id} className="card space-y-1 p-4 text-sm">
+          <div key={r.id} className="card space-y-1.5 p-5 text-sm">
             <div className="flex items-center justify-between"><strong>{r.author}</strong><span className="text-xs text-muted">{timeAgo(r.createdAt)}</span></div>
             <Stars value={r.rating} />
             {(r.amountPaidNgwee != null) && <p className="text-xs text-muted">Paid {kwacha(r.amountPaidNgwee)}{r.groupSize ? ` for ${r.groupSize}` : ''}{r.itemsOrdered ? ` · ${r.itemsOrdered}` : ''}</p>}
             {r.body && <p>{r.body}</p>}
             {r.images.length > 0 && <div className="flex gap-2 pt-1">{r.images.map((im, k) => /* eslint-disable-next-line @next/next/no-img-element */ <img key={k} src={im.thumb} alt="" loading="lazy" className="h-16 w-16 rounded-lg object-cover" />)}</div>}
-            {r.ownerReply && <p className="rounded-lg bg-brand-soft p-2 text-xs"><strong>Owner reply:</strong> {r.ownerReply}</p>}
+            {r.ownerReply && <p className="rounded-xl bg-sunken p-3 text-xs"><strong>Owner reply:</strong> {r.ownerReply}</p>}
           </div>
         ))}
       </section>

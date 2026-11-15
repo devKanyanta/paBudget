@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens — mirrors paBudget-web/src/app/globals.css
+/// Design tokens, mirroring paBudget-web/src/app/globals.css.
+/// One neutral family and one accent. Hierarchy comes from space, weight and a
+/// single raised surface rather than outlining everything.
 class Tokens {
-  static const background = Color(0xFFFBF9F4);
+  static const background = Color(0xFFF5F4EF);
   static const surface = Color(0xFFFFFFFF);
-  static const foreground = Color(0xFF1C1B18);
-  static const muted = Color(0xFF6B675F);
-  static const border = Color(0xFFE6E1D6);
-  static const brand = Color(0xFF1F7A4D);
-  static const brandDark = Color(0xFF165C3A);
-  static const brandSoft = Color(0xFFE3F3EA);
-  static const accent = Color(0xFFE8A317);
-  static const danger = Color(0xFFC0392B);
+  static const sunken = Color(0xFFEEECE5);
+  static const foreground = Color(0xFF191A17);
+  static const ink2 = Color(0xFF3B3D37);
+  static const muted = Color(0xFF6C6E66);
+  static const faint = Color(0xFF9A9C92);
+  static const border = Color(0xFFE4E2DA);
+  static const brand = Color(0xFF17794C);
+  static const brandDark = Color(0xFF10613C);
+  static const brandSoft = Color(0xFFE2F1E8);
+  static const accent = Color(0xFFD99A12); // ratings only
+  static const danger = Color(0xFFB93A2D);
+  static const shadow = Color(0x24191A17);
 }
 
 ThemeData buildTheme() {
@@ -21,7 +27,7 @@ ThemeData buildTheme() {
     surface: Tokens.surface,
     error: Tokens.danger,
   );
-  final radius = BorderRadius.circular(14);
+  final radius = BorderRadius.circular(12);
   return ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
@@ -35,17 +41,20 @@ ThemeData buildTheme() {
     ),
     cardTheme: CardThemeData(
       color: Tokens.surface,
-      elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: Tokens.border)),
+      elevation: 1.5,
+      shadowColor: Tokens.shadow,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Tokens.surface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      border: OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: Tokens.border)),
-      enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: Tokens.border)),
-      focusedBorder: OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: Tokens.brand, width: 1.6)),
+      fillColor: Tokens.sunken,
+      hintStyle: const TextStyle(color: Tokens.faint),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: Tokens.brand, width: 1.5)),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -54,24 +63,31 @@ ThemeData buildTheme() {
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),
+    // Secondary buttons are a tonal fill, not an outline
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(0, 44),
         shape: RoundedRectangleBorder(borderRadius: radius),
-        side: const BorderSide(color: Tokens.border),
+        side: BorderSide.none,
+        backgroundColor: Tokens.sunken,
         foregroundColor: Tokens.foreground,
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: Tokens.surface,
+      backgroundColor: Tokens.sunken,
       selectedColor: Tokens.brandSoft,
-      side: const BorderSide(color: Tokens.border),
+      side: BorderSide.none,
       shape: const StadiumBorder(),
-      labelStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500),
+      labelStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: Tokens.ink2),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Tokens.surface,
+      surfaceTintColor: Colors.transparent,
       indicatorColor: Tokens.brandSoft,
+      elevation: 0,
+      labelTextStyle: WidgetStatePropertyAll(const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
     ),
+    dividerTheme: const DividerThemeData(color: Tokens.border, space: 1, thickness: 1),
   );
 }
