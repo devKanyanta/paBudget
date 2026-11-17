@@ -1,7 +1,9 @@
 'use client';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 import { useState } from 'react';
 import { Star } from 'lucide-react';
-import { ErrorText, Field, RequireAuth } from '@/components/ui';
+import { ErrorText, Field, RequireAuth, Loading } from '@/components/ui';
 import { ImageUploader, type Uploaded } from '@/components/image-uploader';
 import { useSubmit } from '@/components/submit';
 import { usePlace } from '@/components/use-place';
@@ -13,16 +15,17 @@ function Form() {
   const [rating, setRating] = useState(0);
   const [f, setF] = useState({ body: '', itemsOrdered: '', paid: '', group: '' });
   const [photos, setPhotos] = useState<Uploaded[]>([]);
-  if (!place) return <p className="text-sm text-muted">Loading…</p>;
+  if (!place) return <div className="mx-auto max-w-2xl"><Loading rows={2} /></div>;
   return (
-    <form className="mx-auto max-w-xl space-y-4" onSubmit={(e) => {
+    <form className="card mx-auto max-w-2xl space-y-5 p-6 sm:p-8" onSubmit={(e) => {
       e.preventDefault();
       void submit({
         placeId: place.id, rating, ...(f.body && { body: f.body }), ...(f.itemsOrdered && { itemsOrdered: f.itemsOrdered }),
         ...(f.paid && { amountPaidNgwee: toNgwee(f.paid) }), ...(f.group && { groupSize: Number(f.group) }), ...(photos.length && { imageIds: photos.map((p) => p.id) }),
       });
     }}>
-      <h1 className="text-xl font-bold">Review {place.name}</h1>
+      <Link href={`/places/${place.slug}`} className="inline-flex items-center gap-1 text-sm text-muted hover:text-brand"><ChevronLeft aria-hidden className="size-4" />{place.name}</Link>
+      <h1 className="page-title">Review {place.name}</h1>
       <ErrorText error={error} />
       <div role="radiogroup" aria-label="Rating" className="flex gap-1">
         {[1, 2, 3, 4, 5].map((n) => <button type="button" key={n} role="radio" aria-checked={rating === n} aria-label={`${n} stars`} onClick={() => setRating(n)} className={n <= rating ? 'text-accent' : 'text-border'}><Star aria-hidden className="size-8 fill-current" /></button>)}
@@ -34,7 +37,7 @@ function Form() {
       </div>
       <Field label="Your review"><textarea className="input" rows={4} maxLength={1500} value={f.body} onChange={(e) => setF({ ...f, body: e.target.value })} /></Field>
       <Field label="Photos (optional)"><ImageUploader value={photos} onChange={setPhotos} max={4} /></Field>
-      <button className="btn-primary w-full" disabled={busy || rating === 0}>{busy ? 'Submitting…' : 'Submit review'}</button>
+      <button className="btn-primary w-full !py-3" disabled={busy || rating === 0}>{busy ? 'Submitting…' : 'Submit review'}</button>
     </form>
   );
 }

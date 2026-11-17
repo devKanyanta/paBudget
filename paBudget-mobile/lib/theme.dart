@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
+import 'brand_colors.dart';
 
-/// Design tokens, mirroring paBudget-web/src/app/globals.css.
-/// One neutral family and one accent. Hierarchy comes from space, weight and a
-/// single raised surface rather than outlining everything.
+/// Design tokens from the paBudget brand kit (see brand_colors.dart), mirroring
+/// paBudget-web/src/app/globals.css.
 class Tokens {
-  static const background = Color(0xFFF5F4EF);
+  static const background = PaBudgetColors.ground;
   static const surface = Color(0xFFFFFFFF);
-  static const sunken = Color(0xFFEEECE5);
-  static const foreground = Color(0xFF191A17);
-  static const ink2 = Color(0xFF3B3D37);
-  static const muted = Color(0xFF6C6E66);
-  static const faint = Color(0xFF9A9C92);
-  static const border = Color(0xFFE4E2DA);
-  static const brand = Color(0xFF17794C);
-  static const brandDark = Color(0xFF10613C);
-  static const brandSoft = Color(0xFFE2F1E8);
-  static const accent = Color(0xFFD99A12); // ratings only
-  static const danger = Color(0xFFB93A2D);
-  static const shadow = Color(0x24191A17);
+  static const sunken = Color(0xFFEFECE3);
+  static const foreground = PaBudgetColors.ink;
+  static const ink2 = Color(0xFF2F3D37);
+  static const muted = PaBudgetColors.stone;
+  static const faint = Color(0xFF8D9792);
+  static const border = Color(0xFFE6E2D6);
+  static const brand = PaBudgetColors.emerald;
+  static const brandDark = Color(0xFF0A5A41);
+  static const brandSoft = Color(0xFFE6F3EC);
+  static const forest = PaBudgetColors.forest;
+  static const mint = PaBudgetColors.mint;
+  static const sand = PaBudgetColors.sand;
+  static const accent = PaBudgetColors.copper; // ratings, highlights
+  static const danger = PaBudgetColors.overspend; // over budget, errors
+  static const shadow = Color(0x2412201B);
 }
 
 ThemeData buildTheme() {

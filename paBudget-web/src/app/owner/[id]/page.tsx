@@ -34,10 +34,10 @@ function Manager() {
   if (!q.data) return <p className="text-sm text-muted">Loading…</p>;
   const p = q.data;
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <div className="flex items-baseline justify-between gap-2"><h1 className="text-xl font-bold">{p.name}</h1><Link className="text-sm font-medium text-brand" href={`/places/${p.slug}`}>View public page →</Link></div>
-      <nav className="-mx-4 flex gap-1 overflow-x-auto px-4" role="tablist">
-        {TABS.map((t) => <button key={t} role="tab" aria-selected={t === tab} className={`chip whitespace-nowrap ${t === tab ? 'chip-active' : ''}`} onClick={() => setTab(t)}>{t}</button>)}
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="flex items-baseline justify-between gap-2"><h1 className="page-title">{p.name}</h1><Link className="text-sm font-medium text-brand" href={`/places/${p.slug}`}>View public page →</Link></div>
+      <nav className="-mx-4 flex gap-1 overflow-x-auto border-b border-border px-4" role="tablist">
+        {TABS.map((t) => <button key={t} role="tab" aria-selected={t === tab} className={`whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm font-medium transition ${t === tab ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-foreground'}`} onClick={() => setTab(t)}>{t}</button>)}
       </nav>
       {tab === 'Details' && <Details p={p} onSaved={refresh} />}
       {tab === 'Menu' && <MenuTab p={p} onSaved={refresh} />}

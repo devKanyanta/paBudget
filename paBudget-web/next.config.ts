@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone', // self-contained server bundle, built in CI and shipped to the VPS
   turbopack: {
     rules: {
       "*.css": {

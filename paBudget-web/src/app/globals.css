@@ -7,44 +7,42 @@
   raised surface, not from outlining everything. Status colours mean status.
 */
 :root {
-  --background: #f5f4ef;       /* canvas */
-  --surface: #ffffff;          /* raised */
-  --sunken: #eeece5;           /* wells, inputs, chips */
-  --foreground: #191a17;       /* ink 1 */
-  --ink-2: #3b3d37;
-  --muted: #6c6e66;            /* ink 3 */
-  --faint: #9a9c92;            /* ink 4 */
-  --border: #e4e2da;           /* hairline, used sparingly */
-  --brand: #17794c;
-  --brand-dark: #10613c;
-  --brand-soft: #e2f1e8;
+  color-scheme: light;
+  /* paBudget brand kit: Emerald, Forest, Mint, Copper, Sand, Ink, Stone, Ground, Overspend. */
+  --pb-emerald: #0e6b4f;
+  --pb-forest: #0a3d2e;
+  --pb-mint: #dcefe6;
+  --pb-copper: #c8701e;
+  --pb-copper-light: #e08a3a;
+  --pb-sand: #f6e3cf;
+  --pb-ink: #12201b;
+  --pb-stone: #5b6661;
+  --pb-ground: #f7f5ef;
+  --pb-overspend: #b3261e;
+
+  --background: var(--pb-ground);
+  --surface: #ffffff;
+  --sunken: #efece3;
+  --foreground: var(--pb-ink);
+  --ink-2: #2f3d37;
+  --muted: var(--pb-stone);
+  --faint: #8d9792;
+  --border: #e6e2d6;
+  --border-strong: #cfcbbd;
+  --brand: var(--pb-emerald);
+  --brand-dark: #0a5a41;
+  --brand-soft: #e6f3ec;
+  --brand-ground: var(--pb-forest);
   --on-brand: #ffffff;
-  --accent: #d99a12;           /* ratings only */
-  --danger: #b93a2d;
-  --shadow-card: 0 1px 2px rgb(25 26 23 / 0.05), 0 4px 14px -6px rgb(25 26 23 / 0.08);
-  --shadow-pop: 0 2px 4px rgb(25 26 23 / 0.06), 0 16px 40px -12px rgb(25 26 23 / 0.22);
-  --radius: 16px;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* on dark, depth is a lighter surface, not a shadow */
-    --background: #111210;
-    --surface: #1a1c19;
-    --sunken: #232521;
-    --foreground: #f2f1ea;
-    --ink-2: #d4d3ca;
-    --muted: #a3a49a;
-    --faint: #73756c;
-    --border: #2b2d29;
-    --brand: #4cb783;
-    --brand-dark: #3a9f6d;
-    --brand-soft: #1a3226;
-    --on-brand: #07140d;
-    --accent: #f0b73c;
-    --danger: #e5675a;
-    --shadow-card: none;
-    --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.6);
-  }
+  --accent: var(--pb-copper);
+  --accent-soft: #fbf0e3;
+  --danger: var(--pb-overspend);
+  --danger-soft: #fcebea;
+  --info: var(--pb-forest);
+  --info-soft: var(--pb-mint);
+  --shadow-card: 0 1px 2px rgb(18 32 27 / 0.04), 0 0 0 1px rgb(18 32 27 / 0.06);
+  --shadow-pop: 0 4px 6px -2px rgb(18 32 27 / 0.05), 0 12px 28px -8px rgb(18 32 27 / 0.18);
+  --radius: 12px;
 }
 
 @theme inline {
@@ -60,33 +58,112 @@
   --color-brand-dark: var(--brand-dark);
   --color-brand-soft: var(--brand-soft);
   --color-on-brand: var(--on-brand);
+  --color-brand-ground: var(--brand-ground);
+  --color-copper-light: var(--pb-copper-light);
+  --color-mint: var(--pb-mint);
+  --color-sand: var(--pb-sand);
   --color-accent: var(--accent);
   --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-accent-soft: var(--accent-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-border-strong: var(--border-strong);
   --shadow-card: var(--shadow-card);
   --shadow-pop: var(--shadow-pop);
 }
 
 body {
+  overflow-x: clip;
   background: var(--background);
   color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  font-feature-settings: "cv11", "ss01";
-  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   letter-spacing: -0.006em;
 }
-h1, h2, h3 { letter-spacing: -0.02em; text-wrap: balance; }
+h1, h2, h3, .font-display { font-family: var(--font-display), var(--font-sans), sans-serif; letter-spacing: -0.02em; text-wrap: balance; }
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 8px; }
 
+
+.full-bleed { margin-inline: calc(50% - 50vw); }
+.grid-bg { background-image: linear-gradient(to right, rgb(18 32 27 / 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgb(18 32 27 / 0.05) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black, transparent); }
+/* Liquid blobs: slow morphing shapes drifting behind the hero. Deliberately faint. */
+.blob { position: absolute; filter: blur(56px); opacity: 0.3; will-change: transform, border-radius; animation: blob-morph 16s ease-in-out infinite alternate, blob-drift 22s ease-in-out infinite alternate; }
+.blob-2 { animation-duration: 19s, 26s; animation-delay: -6s, -9s; }
+.blob-3 { animation-duration: 14s, 20s; animation-delay: -3s, -12s; }
+@keyframes blob-morph {
+  0% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
+  50% { border-radius: 63% 37% 41% 59% / 58% 62% 38% 42%; }
+  100% { border-radius: 38% 62% 54% 46% / 52% 36% 64% 48%; }
+}
+@keyframes blob-drift {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate3d(5%, 8%, 0) rotate(40deg) scale(1.08); }
+  100% { transform: translate3d(-4%, -6%, 0) rotate(90deg) scale(0.95); }
+}
+/* Slow floating bob for the hero badge */
+.bob-slow { animation: bob-slow 6s ease-in-out infinite; }
+@keyframes bob-slow {
+  0%, 100% { transform: translateY(0) rotate(2deg); }
+  50% { transform: translateY(-14px) rotate(-1deg); }
+}
+@media (prefers-reduced-motion: reduce) { .blob, .bob-slow { animation: none; } }
+
+.reveal { transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal[data-reveal='hidden'] { opacity: 0; transform: translateY(28px); }
+.pop { animation: pop 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes pop { 0% { transform: scale(0.85); opacity: 0.3; } 100% { transform: scale(1); opacity: 1; } }
+.float-y { animation: float-y 7s ease-in-out infinite; }
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.nudge-x { animation: nudge-x 2.4s ease-in-out infinite; }
+@keyframes nudge-x { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+.wiggle-on-hover:hover .wiggle { animation: wiggle 0.6s ease-in-out; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg) scale(1.1); } 75% { transform: rotate(8deg) scale(1.1); } }
+/* Sliding list: an endless marquee that pauses on hover/focus. Falls back to a normal scroller for reduced motion. */
+.marquee { overflow: hidden; mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent); }
+.marquee-track { display: flex; width: max-content; gap: 0.5rem; padding-block: 0.25rem; animation: marquee 38s linear infinite; }
+.marquee-track li { flex: none; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(calc(-50% - 0.25rem)); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; }
+  .marquee-track { animation: none; }
+  .marquee-track li[aria-hidden='true'] { display: none; }
+}
+.blob-light { opacity: 0.5; }
+@media (prefers-reduced-motion: reduce) { .reveal { transition: none; } .float-y, .nudge-x, .pop { animation: none; } }
+
+.dots-bg { background-image: radial-gradient(rgb(255 255 255 / 0.18) 1.2px, transparent 1.2px); background-size: 20px 20px; }
+
 @layer components {
-  .btn, .btn-primary, .btn-outline, .btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50; }
-  .btn-primary { @apply bg-brand text-on-brand hover:bg-brand-dark; }
-  .btn-outline { @apply bg-sunken text-foreground hover:brightness-95; }
-  .btn-danger { @apply bg-danger text-white hover:brightness-95; }
-  .input { @apply w-full rounded-xl bg-sunken px-3.5 py-2.5 text-sm outline-none ring-1 ring-transparent transition placeholder:text-faint focus:bg-surface focus:ring-brand; }
+  .btn, .btn-primary, .btn-outline, .btn-danger, .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-150 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply bg-brand text-on-brand shadow-sm hover:bg-brand-dark active:translate-y-px; }
+  .btn-outline { @apply bg-surface text-ink-2 ring-1 ring-border-strong hover:bg-sunken hover:text-foreground; }
+  .btn-ghost { @apply text-ink-2 hover:bg-sunken; }
+  .btn-accent { @apply bg-accent text-foreground shadow-sm hover:bg-copper-light; }
+  .btn-danger { @apply bg-danger text-white shadow-sm hover:brightness-95; }
+  .btn-sm { @apply !px-3 !py-1.5 !text-xs; }
+  .input { @apply w-full rounded-lg bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none ring-1 ring-border-strong transition placeholder:text-faint hover:ring-faint focus:ring-2 focus:ring-brand disabled:bg-sunken; }
+  select.input { @apply pr-8; }
+  textarea.input { @apply leading-relaxed; }
   .label { @apply mb-1.5 block text-sm font-medium text-ink-2; }
   .card { @apply rounded-[var(--radius)] bg-surface shadow-card; }
   .card-line { @apply rounded-[var(--radius)] bg-surface ring-1 ring-border; }
-  .chip { @apply inline-flex items-center gap-1.5 rounded-full bg-sunken px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:brightness-95; }
-  .chip-active { @apply inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-lg bg-surface px-3 py-1.5 text-xs font-medium text-ink-2 ring-1 ring-border-strong transition hover:bg-sunken; }
+  .chip-active { @apply inline-flex items-center gap-1.5 rounded-lg bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand ring-1 ring-brand/40; }
+  .badge { @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ring-1 ring-inset; }
+  .badge-green { @apply bg-brand-soft text-brand ring-brand/20; }
+  .badge-amber { @apply bg-accent-soft text-accent ring-accent/25; }
+  .badge-sand { @apply bg-sand text-ink-2 ring-accent/20; }
+  .badge-red { @apply bg-danger-soft text-danger ring-danger/20; }
+  .badge-blue { @apply bg-info-soft text-info ring-info/20; }
+  .badge-gray { @apply bg-sunken text-muted ring-border-strong/60; }
+  .page-title { @apply text-2xl font-bold tracking-tight text-foreground; }
+  .page-sub { @apply mt-1 text-sm text-muted; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-wider text-accent; }
+  .skeleton { @apply animate-pulse rounded-lg bg-border/70; }
   .num { font-variant-numeric: tabular-nums; }
+  .prose-doc { @apply space-y-4 text-[15px] leading-relaxed text-ink-2; }
+  .prose-doc h2 { @apply mt-8 text-lg font-semibold text-foreground; }
+  .prose-doc a { @apply text-brand underline underline-offset-2; }
 }

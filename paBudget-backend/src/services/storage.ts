@@ -9,6 +9,9 @@ let s3: S3Client | null = null;
 const client = () =>
   (s3 ??= new S3Client({
     region: 'auto',
+    // Presigned browser PUTs must not bake in a CRC32 of an empty body (the SDK default), or R2 rejects the real upload.
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
     endpoint: config.r2.endpoint,
     credentials: { accessKeyId: config.r2.accessKeyId, secretAccessKey: config.r2.secretAccessKey },
   }));

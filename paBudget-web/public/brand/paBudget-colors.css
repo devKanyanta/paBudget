@@ -1,0 +1,12 @@
+:root {
+  --pb-emerald: #0E6B4F; /* Primary · buttons, links, on-track */
+  --pb-forest: #0A3D2E; /* Dark ground · headers */
+  --pb-mint: #DCEFE6; /* Soft surfaces · cards, chips */
+  --pb-copper: #C8701E; /* Accent · the “pa”, highlights */
+  --pb-copper-light: #E08A3A; /* Accent on dark grounds */
+  --pb-sand: #F6E3CF; /* Accent tint · tags, callouts */
+  --pb-ink: #12201B; /* Text & mono logo */
+  --pb-stone: #5B6661; /* Secondary text, captions */
+  --pb-ground: #F7F5EF; /* App background */
+  --pb-overspend: #B3261E; /* Over budget, errors */
+}

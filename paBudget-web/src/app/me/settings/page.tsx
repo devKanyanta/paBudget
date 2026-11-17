@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import type { Meta } from '@/lib/types';
 import { useAuth } from '@/components/providers';
-import { ErrorText, Field, RequireAuth } from '@/components/ui';
+import { ErrorText, Field, FormSection, PageHeader } from '@/components/ui';
 import { toNgwee } from '@/lib/format';
 
 export default function Page() {
@@ -33,19 +33,25 @@ export default function Page() {
     await api('/me', { method: 'DELETE' }); await signOut(); router.replace('/');
   }
   return (
-    <RequireAuth>
-      <form onSubmit={save} className="card mx-auto max-w-md space-y-4 p-5">
-        <h1 className="text-xl font-bold">Settings</h1>
-        <ErrorText error={err} />
-        <Field label="Name"><input className="input" value={name} onChange={(e) => setName(e.target.value)} required /></Field>
-        <Field label="Home area"><select className="input" value={area} onChange={(e) => setArea(e.target.value)}><option value="">—</option>{meta.data?.areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select></Field>
-        <Field label="Usual budget per person (K)"><input className="input" inputMode="decimal" value={budget} onChange={(e) => setBudget(e.target.value)} /></Field>
-        <button className="btn-primary w-full">Save</button>
-        {msg && <p className="text-center text-sm text-brand">{msg}</p>}
-        <hr className="border-border" />
-        <button type="button" className="btn-outline w-full" onClick={() => void exportData()}>Download my data</button>
-        <button type="button" className="btn-outline w-full text-danger" onClick={() => void del()}>Delete my account</button>
+    <div className="max-w-xl space-y-6">
+      <PageHeader title="Settings" subtitle="Your profile and preferences." />
+      <ErrorText error={err} />
+      <form onSubmit={save}>
+        <FormSection title="Profile">
+          <Field label="Name"><input className="input" value={name} onChange={(e) => setName(e.target.value)} required /></Field>
+          <Field label="Home area" hint="We’ll show places near here first."><select className="input" value={area} onChange={(e) => setArea(e.target.value)}><option value="">None</option>{meta.data?.areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select></Field>
+          <Field label="Usual budget per person (K)"><input className="input" inputMode="decimal" value={budget} onChange={(e) => setBudget(e.target.value)} /></Field>
+          <div className="flex items-center gap-3"><button className="btn-primary">Save changes</button>{msg && <span className="text-sm font-medium text-brand">{msg}</span>}</div>
+        </FormSection>
       </form>
-    </RequireAuth>
+      <FormSection title="Your data" hint="Download a copy of everything we hold about you.">
+        <button type="button" className="btn-outline" onClick={() => void exportData()}>Download my data</button>
+      </FormSection>
+      <section className="rounded-xl border border-danger/25 bg-danger-soft p-5">
+        <h2 className="font-semibold text-danger">Delete account</h2>
+        <p className="mt-0.5 text-sm text-ink-2">Permanently removes your personal data. Places and reviews you contributed stay, without your name.</p>
+        <button type="button" className="btn-danger mt-4" onClick={() => void del()}>Delete my account</button>
+      </section>
+    </div>
   );
 }

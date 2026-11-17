@@ -8,7 +8,7 @@ import { kwacha, timeAgo } from '@/lib/format';
 
 const LABEL: Record<string, string> = { NEW_PLACE: 'New place', MENU: 'Menu', PHOTOS: 'Photos', REVIEW: 'Review', EDIT: 'Edit', FLAG: 'Report', CLAIM: 'Claim' };
 
-function scoreCls(n: number | null) { return n == null ? 'bg-border' : n >= 80 ? 'bg-brand text-white' : n >= 50 ? 'bg-accent text-black' : 'bg-danger text-white'; }
+function scoreCls(n: number | null) { return n == null ? 'badge-gray' : n >= 80 ? 'badge-green' : n >= 50 ? 'badge-amber' : 'badge-red'; }
 
 function Detail({ s }: { s: AdminSubmission }) {
   const p = s.payload;
@@ -61,30 +61,30 @@ export default function Page() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold">Moderation queue {q.data && <span className="text-muted">({q.data.total})</span>}</h1>
+        <h1 className="page-title">Moderation queue {q.data && <span className="text-muted">({q.data.total})</span>}</h1>
         <div className="flex gap-1"><button className={`chip ${tab === 'PENDING' ? 'chip-active' : ''}`} onClick={() => setTab('PENDING')}>Pending</button><button className={`chip ${tab === 'SPOT' ? 'chip-active' : ''}`} onClick={() => setTab('SPOT')}>Spot-checks</button></div>
       </div>
       <ErrorText error={act.error ?? batch.error} />
       {tab === 'PENDING' && items.length > 0 && (
-        <div className="sticky top-14 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-background p-2 text-sm">
+        <div className="sticky top-16 z-10 flex flex-wrap items-center gap-2 rounded-xl bg-surface p-2.5 text-sm shadow-pop ring-1 ring-border">
           <button className="chip" onClick={() => setSel(new Set(safe))}>Select low-risk ({safe.length})</button>
           <button className="chip" onClick={() => setSel(new Set())}>Clear</button>
           <span className="text-muted">{sel.size} selected</span>
-          <button className="btn-primary !py-1.5" disabled={!sel.size || batch.isPending} onClick={() => batch.mutate('approve')}>Approve</button>
-          <button className="btn-outline !py-1.5" disabled={!sel.size || batch.isPending} onClick={() => batch.mutate('reject')}>Reject</button>
+          <button className="btn-primary btn-sm" disabled={!sel.size || batch.isPending} onClick={() => batch.mutate('approve')}>Approve</button>
+          <button className="btn-outline btn-sm" disabled={!sel.size || batch.isPending} onClick={() => batch.mutate('reject')}>Reject</button>
         </div>
       )}
-      {q.isSuccess && items.length === 0 && <p className="card p-6 text-center text-sm text-muted">{tab === 'PENDING' ? 'All caught up 🎉' : 'Nothing to spot-check.'}</p>}
+      {q.isSuccess && items.length === 0 && <p className="card p-6 text-center text-sm text-muted">{tab === 'PENDING' ? 'All caught up. Nothing is waiting for review.' : 'Nothing to spot-check.'}</p>}
       {items.map((s) => (
         <article key={s.id} className="card space-y-3 p-3">
           <header className="flex items-start gap-2">
             {tab === 'PENDING' && <input type="checkbox" className="mt-1.5 h-5 w-5" aria-label="Select" checked={sel.has(s.id)} onChange={() => toggle(s.id)} />}
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2"><span className="chip chip-active">{LABEL[s.type] ?? s.type}</span><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${scoreCls(s.aiScore)}`}>AI {s.aiScore ?? '—'}</span><span className="text-xs text-muted">{timeAgo(s.createdAt)}</span></div>
+              <div className="flex flex-wrap items-center gap-2"><span className="badge badge-blue">{LABEL[s.type] ?? s.type}</span><span className={`badge ${scoreCls(s.aiScore)}`}>AI {s.aiScore ?? '—'}</span><span className="text-xs text-muted">{timeAgo(s.createdAt)}</span></div>
               <p className="text-xs text-muted">by {s.user.name} · {s.user.trustLevel.toLowerCase()} · {s.user.approved} ✓ / {s.user.rejected} ✗</p>
             </div>
           </header>
-          {s.aiReasons && s.aiReasons.length > 0 && <ul className="rounded-lg bg-accent/15 p-2 text-xs">{s.aiReasons.map((r, i) => <li key={i}>⚠ {r}</li>)}</ul>}
+          {s.aiReasons && s.aiReasons.length > 0 && <ul className="rounded-lg bg-accent-soft p-2.5 text-xs text-ink-2">{s.aiReasons.map((r, i) => <li key={i}>⚠ {r}</li>)}</ul>}
           <Detail s={s} />
           {editing?.id === s.id && <textarea className="input h-48 font-mono text-xs" value={editing.text} onChange={(e) => setEditing({ id: s.id, text: e.target.value })} />}
           <footer className="flex flex-wrap gap-2">

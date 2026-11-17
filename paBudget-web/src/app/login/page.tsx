@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import type { AuthResult } from '@/lib/types';
 import { useAuth } from '@/components/providers';
 import { ErrorText, Field } from '@/components/ui';
+import { AuthShell } from '@/components/auth-shell';
 
 function LoginForm() {
   const { signIn } = useAuth();
@@ -23,14 +24,15 @@ function LoginForm() {
     } catch (e) { setErr(e); } finally { setBusy(false); }
   }
   return (
-    <form onSubmit={submit} className="card mx-auto max-w-sm space-y-4 p-5">
-      <h1 className="text-xl font-bold">Log in</h1>
+    <AuthShell title="Welcome back" subtitle="Log in to save places, plan outings and contribute.">
+    <form onSubmit={submit} className="space-y-4">
       <ErrorText error={err} />
       <Field label="Email or phone"><input className="input" value={id} onChange={(e) => setId(e.target.value)} autoComplete="username" required /></Field>
       <Field label="Password"><input className="input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="current-password" required /></Field>
-      <button className="btn-primary w-full" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button>
-      <p className="text-center text-sm text-muted">New here? <Link className="font-medium text-brand" href={`/register?next=${encodeURIComponent(next)}`}>Create an account</Link></p>
+      <button className="btn-primary w-full !py-3" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button>
+      <p className="pt-2 text-center text-sm text-muted">New here? <Link className="font-medium text-brand" href={`/register?next=${encodeURIComponent(next)}`}>Create an account</Link></p>
     </form>
+    </AuthShell>
   );
 }
 export default function Page() { return <Suspense><LoginForm /></Suspense>; }

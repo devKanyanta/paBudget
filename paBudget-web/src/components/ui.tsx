@@ -1,7 +1,10 @@
 'use client';
 import { useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { AlertCircle } from 'lucide-react';
+import { EmptyState, Loading } from './blocks';
+
+export { EmptyState, Field, FormSection, Loading, PageHeader } from './blocks';
 import { useAuth } from './providers';
 import { ApiError } from '@/lib/api';
 
@@ -9,9 +12,12 @@ export function ErrorText({ error }: { error: unknown }) {
   if (!error) return null;
   const e = error as ApiError;
   return (
-    <div role="alert" className="rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
-      {e.message || 'Something went wrong'}
-      {e.issues?.length ? <ul className="mt-1 list-disc pl-5">{e.issues.map((i, k) => <li key={k}>{i.path}: {i.message}</li>)}</ul> : null}
+    <div role="alert" className="flex gap-2.5 rounded-lg border border-danger/25 bg-danger-soft p-3 text-sm text-danger">
+      <AlertCircle aria-hidden className="mt-0.5 size-4 shrink-0" />
+      <div>
+        {e.message || 'Something went wrong'}
+        {e.issues?.length ? <ul className="mt-1 list-disc pl-4">{e.issues.map((i, k) => <li key={k}>{i.path}: {i.message}</li>)}</ul> : null}
+      </div>
     </div>
   );
 }
@@ -21,11 +27,8 @@ export function RequireAuth({ children, role }: { children: ReactNode; role?: 'A
   const { user, loading } = useAuth();
   const router = useRouter();
   useEffect(() => { if (!loading && !user) router.replace(`/login?next=${encodeURIComponent(window.location.pathname)}`); }, [loading, user, router]);
-  if (loading || !user) return <p className="py-10 text-center text-sm text-muted">Loading…</p>;
-  if (role && user.role !== role) return <p className="py-10 text-center">You don’t have access to this page.</p>;
+  if (loading || !user) return <div className="mx-auto max-w-xl py-6"><Loading /></div>;
+  if (role && user.role !== role) return <EmptyState icon={AlertCircle} title="No access" body="You don’t have permission to view this page." />;
   return <>{children}</>;
 }
 
-export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
-  return <div><label className="label">{label}</label>{children}{hint && <p className="mt-1 text-xs text-muted">{hint}</p>}</div>;
-}

@@ -35,6 +35,9 @@ async function script(a: Act<S>) {
   a.mark('total');
   a.put({ total: TOTAL });
   await a.wait(3200);
+  // Reset to the opening state so the loop restarts cleanly (the answer collapses away)
+  a.put({ sent: false, phase: 'idle', lines: 0, total: 0 });
+  await a.wait(700);
 }
 
 const k = (n: number) => `K${Math.round(n / 100)}`;
@@ -48,9 +51,9 @@ export function PlannerDemo() {
       initial={initial}
       poster={poster}
       script={script}
-      play="once"
+      play="loop"
       className="pd"
-      tokens={{ '--ss-accent': '#17794c', '--ss-radius-window': '14px' }}
+      tokens={{ '--ss-accent': '#0e6b4f', '--ss-radius-window': '14px' }}
     >
       {(s) => (
         <Window title="Plan my outing" className="pd-win">

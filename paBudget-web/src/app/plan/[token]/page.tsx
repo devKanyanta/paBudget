@@ -21,9 +21,9 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
 export default async function Page({ params }: { params: Promise<{ token: string }> }) {
   const p = await load((await params).token);
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-5">
       <header>
-        <h1 className="text-xl font-extrabold">{p.title}</h1>
+        <h1 className="page-title">{p.title}</h1>
         <p className="text-sm text-muted">Shared by {p.by} · for {p.groupSize} · budget {kwacha(p.budgetNgwee)}</p>
       </header>
       {p.stops.map((s) => (
@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
         </PlanStopCard>
       ))}
       <p className="text-xs text-muted">Prices were checked when the plan was saved and may have changed since.</p>
-      <Link href="/planner" className="btn-primary w-full">Plan my own outing</Link>
+      <Link href="/planner" className="btn-primary w-full !py-3">Plan my own outing</Link>
     </div>
   );
 }

@@ -51,7 +51,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final drafts = ref.watch(draftsProvider);
     final notifier = ref.read(filtersProvider.notifier);
     return Scaffold(
-      appBar: AppBar(title: const Text.rich(TextSpan(children: [TextSpan(text: 'pa', style: TextStyle(color: Tokens.brand)), TextSpan(text: 'Budget')]), style: TextStyle(fontWeight: FontWeight.w900))),
+      appBar: AppBar(title: Image.asset('assets/brand/paBudget-logo-primary@1000w.png', height: 26, semanticLabel: 'paBudget')),
       body: RefreshIndicator(
         onRefresh: () async => ref.refresh(placeListProvider(f).future),
         child: ListView(padding: const EdgeInsets.fromLTRB(16, 4, 16, 24), children: [

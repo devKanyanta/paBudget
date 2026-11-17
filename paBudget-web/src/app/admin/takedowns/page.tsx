@@ -17,17 +17,17 @@ export default function Page() {
   }
   return (
     <div className="space-y-3">
-      <h1 className="text-xl font-bold">Takedown requests</h1>
+      <h1 className="page-title">Takedown requests</h1>
       <div className="flex gap-2">{['OPEN', 'ACTIONED', 'DISMISSED'].map((s) => <button key={s} className={s === status ? 'chip-active' : 'chip'} onClick={() => setStatus(s)}>{s.toLowerCase()}</button>)}</div>
       <ErrorText error={err} />
       {q.data?.length === 0 && <p className="text-sm text-muted">Nothing here.</p>}
       {q.data?.map((t) => (
-        <div key={t.id} className={`card space-y-1 p-3 text-sm ${t.overdue ? 'border-danger' : ''}`}>
+        <div key={t.id} className={`card space-y-1.5 p-4 text-sm ${t.overdue ? 'ring-1 ring-danger/40' : ''}`}>
           <div className="flex justify-between"><strong>{t.targetType}{t.targetId ? ` · ${t.targetId}` : ''}</strong><span className={t.overdue ? 'font-bold text-danger' : 'text-xs text-muted'}>{t.status === 'OPEN' ? (t.overdue ? 'OVERDUE' : `due ${new Date(t.dueAt).toLocaleString()}`) : timeAgo(t.createdAt)}</span></div>
           <p>{t.reason}</p>
           <p className="text-xs text-muted">{t.contactName} · <a className="underline" href={`mailto:${t.contactEmail}`}>{t.contactEmail}</a></p>
           {t.note && <p className="text-xs">Note: {t.note}</p>}
-          {t.status === 'OPEN' && <div className="flex gap-2 pt-1"><button className="btn-danger !py-1.5" onClick={() => void resolve(t, 'remove')}>Remove content</button><button className="btn-outline !py-1.5" onClick={() => void resolve(t, 'dismiss')}>Dismiss</button></div>}
+          {t.status === 'OPEN' && <div className="flex gap-2 pt-1"><button className="btn-danger btn-sm" onClick={() => void resolve(t, 'remove')}>Remove content</button><button className="btn-outline btn-sm" onClick={() => void resolve(t, 'dismiss')}>Dismiss</button></div>}
         </div>
       ))}
     </div>

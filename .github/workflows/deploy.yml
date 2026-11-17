@@ -1,0 +1,62 @@
+name: deploy
+on:
+  push:
+    branches: [main]
+    paths: ['paBudget-backend/**', 'paBudget-web/**', 'ecosystem.config.cjs', 'deploy/**', '.github/workflows/deploy.yml']
+  workflow_dispatch:
+concurrency: deploy
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      REMOTE: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+      APP_DIR: pabudget   # relative to the VPS user's home
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - name: Build backend
+        working-directory: paBudget-backend
+        run: |
+          npm ci
+          npx prisma generate
+          npm run typecheck
+
+      - name: Build web
+        working-directory: paBudget-web
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Assemble release
+        run: |
+          mkdir -p release/backend release/web
+          rsync -a --exclude='.env' --exclude='uploads' --exclude='test' paBudget-backend/ release/backend/
+          cp -r paBudget-web/.next/standalone/. release/web/
+          mkdir -p release/web/.next
+          cp -r paBudget-web/.next/static release/web/.next/static
+          cp -r paBudget-web/public release/web/public
+          cp ecosystem.config.cjs release/
+          cp -r deploy release/deploy
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+          printf 'Host *\n  IdentityFile ~/.ssh/id_deploy\n' > ~/.ssh/config
+
+      - name: Upload to VPS
+        run: |
+          ssh "$REMOTE" "mkdir -p ~/$APP_DIR"
+          # --delete removes stale files; keep server-only state (.env, uploads)
+          rsync -az --delete \
+            --exclude='backend/.env' --exclude='backend/uploads' \
+            release/ "$REMOTE:~/$APP_DIR/"
+
+      - name: Migrate and restart
+        run: ssh "$REMOTE" "bash ~/$APP_DIR/deploy/deploy.sh"

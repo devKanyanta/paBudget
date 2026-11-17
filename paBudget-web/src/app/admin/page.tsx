@@ -12,10 +12,10 @@ export default function Page() {
   ];
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold">Overview</h1>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div><h1 className="page-title">Overview</h1><p className="page-sub">What needs attention right now.</p></div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         {tiles.map(([label, v, href]) => {
-          const inner = <div className="card p-4"><div className="text-3xl font-extrabold text-brand">{v ?? '…'}</div><div className="text-sm text-muted">{label}</div></div>;
+          const inner = <div className={`card p-5 transition ${href ? 'hover:shadow-pop' : ''}`}><div className="text-sm text-muted">{label}</div><div className="num mt-1 text-3xl font-bold">{v ?? <span className="skeleton inline-block h-8 w-12 align-middle" />}</div></div>;
           return href ? <Link key={label} href={href}>{inner}</Link> : <div key={label}>{inner}</div>;
         })}
       </div>
